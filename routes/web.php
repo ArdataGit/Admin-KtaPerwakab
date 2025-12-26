@@ -16,6 +16,7 @@ use App\Http\Controllers\MembershipFeeController;
 use App\Http\Controllers\UmkmController;
 use App\Http\Controllers\UmkmProductController;
 use App\Http\Controllers\UmkmProductPhotoController;
+use App\Http\Controllers\DonationCampaignController;
 
 use App\Http\Controllers\AuthController;
 
@@ -65,6 +66,47 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{tukarPoint}', [TukarPointController::class, 'destroy'])->name('tukar-point.destroy');
         });
 
+        // =========================
+// DONATION CAMPAIGN (MASTER)
+// =========================
+
+        // List campaign
+        Route::get(
+            '/donation-campaign',
+            [DonationCampaignController::class, 'index']
+        )->name('master.donation-campaign.index');
+
+        // Form tambah campaign
+        Route::get(
+            '/donation-campaign/create',
+            [DonationCampaignController::class, 'create']
+        )->name('master.donation-campaign.create');
+
+        // Simpan campaign baru
+        Route::post(
+            '/donation-campaign',
+            [DonationCampaignController::class, 'store']
+        )->name('master.donation-campaign.store');
+
+        // Form edit campaign
+        Route::get(
+            '/donation-campaign/{donationCampaign}/edit',
+            [DonationCampaignController::class, 'edit']
+        )->name('master.donation-campaign.edit');
+
+        // Update campaign
+        Route::put(
+            '/donation-campaign/{donationCampaign}',
+            [DonationCampaignController::class, 'update']
+        )->name('master.donation-campaign.update');
+
+        // Hapus campaign
+        Route::delete(
+            '/donation-campaign/{donationCampaign}',
+            [DonationCampaignController::class, 'destroy']
+        )->name('master.donation-campaign.destroy');
+
+
 
         Route::get('/publikasi', [PublikasiController::class, 'index'])->name('publikasi.index');
 
@@ -100,8 +142,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/info-duka/{id}/edit', [InfoDukaController::class, 'edit'])
             ->name('info-duka.edit');
 
-        // UPDATE
-        Route::put('/info-duka/{id}', [InfoDukaController::class, 'update'])
+        Route::put('/info-duka/{infoDuka}', [InfoDukaController::class, 'update'])
             ->name('info-duka.update');
 
         // DELETE
@@ -143,6 +184,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/user/anggota', [UserController::class, 'anggota'])->name('user.anggota');
 
         Route::post('/users/{user}/add-point', [UserPointController::class, 'addPoint'])->name('user.add-point');
+
+        Route::post('/points/add-by-category', [UserPointController::class, 'storeMass'])
+            ->name('points.add-by-category');
+
 
         Route::post('/user', [UserController::class, 'store'])->name('user.store');
         Route::put('/user/{id}', [UserController::class, 'update'])->name('user.update');

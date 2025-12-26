@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PointKategori;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\RedirectResponse;
@@ -21,7 +22,9 @@ class PointKategoriController extends Controller
 
         $pointKategoris = $query->paginate(15)->withQueryString(); // Persist search di pagination
 
-        return view('pages.master.point-kategoris.index', compact('pointKategoris'));
+        $users = User::where('role', 'anggota')->get();
+
+        return view('pages.master.point-kategoris.index', compact('pointKategoris', 'users'));
     }
 
     /**

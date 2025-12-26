@@ -23,9 +23,9 @@
 
 <div class="form-group">
     <label>Isi (Editor)</label>
-    <textarea name="isi" id="editor" class="form-control" rows="5">
-        {{ old('isi', $data->isi ?? '') }}
-    </textarea>
+    <textarea name="isi" id="editor-{{ $data->id ?? 'create' }}" class="form-control"
+        rows="5">{{ old('isi', $data->isi ?? '') }}</textarea>
+
 </div>
 
 <div class="form-row">
@@ -47,6 +47,11 @@
     <label>Foto (1 Foto)</label>
     <input type="file" name="foto" class="form-control-file">
 
+    <small class="text-muted">
+        Format didukung: JPG, JPEG, PNG
+    </small>
+    <br>
+
     @if (!empty($data?->foto))
         <div class="mt-2">
             <small class="text-muted d-block">Foto saat ini:</small>
@@ -67,9 +72,13 @@
 <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 
 <script>
-    ClassicEditor
-        .create(document.querySelector('#editor'))
-        .catch(error => {
-            console.error(error);
-        });
+    document.querySelectorAll('textarea[id^="editor-"]').forEach(el => {
+        if (el.dataset.ckeditorInitialized) return;
+
+        ClassicEditor.create(el)
+            .then(editor => {
+                el.dataset.ckeditorInitialized = true;
+            })
+            .catch(error => console.error(error));
+    });
 </script>

@@ -236,6 +236,9 @@
                                             <div class="col-md-6 mb-2">
                                                 <label>Foto Profil</label>
                                                 <input type="file" name="profile_photo" class="form-control">
+                                                <small class="text-muted">
+                                                    Format didukung: JPG, JPEG, PNG
+                                                </small>
                                             </div>
                                             <div class="col-md-6 mb-3">
                                                 @if ($u->profile_photo_url)
@@ -399,7 +402,10 @@
                             </div>
                             <div class="col-md-6 mb-2">
                                 <label>Foto Profil</label>
-                                <input type="file" name="profile_photo" class="form-control">
+                                <input type="file" name="profile_photo" class="form-control" accept="image/*">
+                                <small class="text-muted">
+                                    Format didukung: JPG, JPEG, PNG
+                                </small>
                             </div>
                         </div>
                     </div>

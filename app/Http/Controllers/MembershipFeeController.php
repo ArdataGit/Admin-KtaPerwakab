@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\MembershipFee;
+use App\Models\PointKategori;
+use App\Models\UserPoint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -76,6 +78,18 @@ class MembershipFeeController extends Controller
                 'expired_at' => now()->addYear(),
                 'status' => 'active',
             ]);
+
+            // Tambahkan point ke user dengan kategori ID 5
+            $category = PointKategori::findOrFail(5);
+            $point = $category->point;
+
+            UserPoint::create([
+                'id_category' => $category->id,
+                'id_user' => $fee->user->id,
+                'created_by' => Auth::id(),
+            ]);
+
+            $fee->user->increment('point', $point);
         }
 
         return redirect()

@@ -92,6 +92,12 @@
                 <span>Info Duka</span>
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('master.donation-campaign.index') }}">
+                <i class="fas fa-bell"></i>
+                <span>Campaign Donation</span>
+            </a>
+        </li>
     @endif
 
     @if(Auth::user()->role == 'superadmin' || Auth::user()->role == 'admin')

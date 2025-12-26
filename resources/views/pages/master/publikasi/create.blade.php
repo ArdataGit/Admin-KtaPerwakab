@@ -18,7 +18,10 @@
 
         <label>Foto (boleh banyak)</label>
         <input type="file" name="photos[]" multiple class="form-control mb-2">
-
+        <small class="text-muted">
+            Format didukung: JPG, JPEG, PNG
+        </small>
+        <br>
         <label>Link Video (opsional, bisa lebih dari 1)</label>
         <input type="text" name="videos[]" class="form-control mb-1" placeholder="https://youtube.com/...">
         <input type="text" name="videos[]" class="form-control mb-1">

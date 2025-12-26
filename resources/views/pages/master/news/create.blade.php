@@ -37,6 +37,9 @@
             <div class="col-md-6 mb-3">
                 <label>Cover Image</label>
                 <input type="file" name="cover_image" class="form-control">
+                <small class="text-muted">
+                    Format didukung: JPG, JPEG, PNG
+                </small>
             </div>
 
         </div>

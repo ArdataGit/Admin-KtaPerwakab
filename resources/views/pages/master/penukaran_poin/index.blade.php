@@ -101,6 +101,10 @@
                                     <div class="form-group">
                                         <label>Image</label>
                                         <input type="file" name="image" class="form-control">
+
+                                        <small class="text-muted">
+                                            Format didukung: JPG, JPEG, PNG
+                                        </small>
                                         @if($item->image)
                                             <small class="text-muted">
                                                 Gambar saat ini akan diganti jika upload baru
@@ -166,6 +170,10 @@
                         <div class="form-group">
                             <label>Image</label>
                             <input type="file" name="image" class="form-control">
+
+                            <small class="text-muted">
+                                Format didukung: JPG, JPEG, PNG
+                            </small>
                         </div>
                     </div>
 

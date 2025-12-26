@@ -68,111 +68,6 @@
                                 </form>
                             </td>
                         </tr>
-
-                        <!-- MODAL EDIT UMKM -->
-                        <div class="modal fade" id="modalEditUmkm{{ $umkm->id }}" tabindex="-1" role="dialog"
-                            aria-labelledby="modalEditUmkmLabel{{ $umkm->id }}" aria-hidden="true">
-                            <div class="modal-dialog  bg-white modal-lg" role="document">
-
-                                <form action="{{ route('umkm.update', $umkm->id) }}" method="POST" enctype="multipart/form-data"
-                                    class="modal-content">
-
-                                    @csrf
-                                    @method('PUT')
-
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="modalEditUmkmLabel{{ $umkm->id }}">
-                                            Edit UMKM
-                                        </h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-
-                                    <div class="modal-body">
-
-                                        {{-- Nama UMKM --}}
-                                        <div class="form-group">
-                                            <label>Nama UMKM</label>
-                                            <input type="text" name="umkm_name" class="form-control"
-                                                value="{{ old('umkm_name', $umkm->umkm_name) }}" required>
-                                        </div>
-
-                                        {{-- Kategori --}}
-                                        <div class="form-group">
-                                            <label>Kategori</label>
-                                            <select name="category" class="form-control" required>
-                                                <option value="">-- Pilih Kategori --</option>
-                                                @php
-                                                    $categories = [
-                                                        'kuliner' => 'Kuliner',
-                                                        'fashion' => 'Fashion',
-                                                        'kerajinan' => 'Kerajinan',
-                                                        'jasa' => 'Jasa',
-                                                        'pertanian' => 'Pertanian',
-                                                        'lainnya' => 'Lainnya',
-                                                    ];
-                                                @endphp
-
-                                                @foreach ($categories as $key => $label)
-                                                    <option value="{{ $key }}" {{ old('category', $umkm->category) === $key ? 'selected' : '' }}>
-                                                        {{ $label }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-
-                                        {{-- Lokasi --}}
-                                        <div class="form-group">
-                                            <label>Lokasi</label>
-                                            <input type="text" name="location" class="form-control"
-                                                value="{{ old('location', $umkm->location) }}">
-                                        </div>
-
-                                        {{-- WhatsApp --}}
-                                        <div class="form-group">
-                                            <label>WhatsApp</label>
-                                            <input type="text" name="contact_wa" class="form-control"
-                                                value="{{ old('contact_wa', $umkm->contact_wa) }}"
-                                                placeholder="Contoh: 628123456789">
-                                        </div>
-
-                                        {{-- Logo --}}
-                                        <div class="form-group">
-                                            <label>Logo</label>
-                                            <input type="file" name="logo" class="form-control-file">
-
-                                            @if ($umkm->logo)
-                                                <div class="mt-2">
-                                                    <small class="text-muted d-block">Logo saat ini:</small>
-                                                    <img src="{{ asset('storage/' . $umkm->logo) }}" width="60"
-                                                        class="rounded shadow-sm mt-1">
-                                                </div>
-                                            @endif
-                                        </div>
-
-                                        {{-- Deskripsi --}}
-                                        <div class="form-group">
-                                            <label>Deskripsi</label>
-                                            <textarea name="description" class="form-control"
-                                                rows="3">{{ old('description', $umkm->description) }}</textarea>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                                            Batal
-                                        </button>
-                                        <button type="submit" class="btn btn-warning">
-                                            Update
-                                        </button>
-                                    </div>
-
-                                </form>
-                            </div>
-                        </div>
-
                     @empty
                         <tr>
                             <td colspan="6" class="text-center text-muted">
@@ -188,6 +83,115 @@
 
         </div>
     </div>
+
+    <!-- MODAL EDIT UMKM -->
+    @foreach ($umkms as $umkm)
+        <div class="modal fade" id="modalEditUmkm{{ $umkm->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="modalEditUmkmLabel{{ $umkm->id }}" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+
+                <form action="{{ route('umkm.update', $umkm->id) }}" method="POST" enctype="multipart/form-data"
+                    class="modal-content">
+
+                    @csrf
+                    @method('PUT')
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalEditUmkmLabel{{ $umkm->id }}">
+                            Edit UMKM
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        {{-- Nama UMKM --}}
+                        <div class="form-group">
+                            <label>Nama UMKM</label>
+                            <input type="text" name="umkm_name" class="form-control"
+                                value="{{ old('umkm_name', $umkm->umkm_name) }}" required>
+                        </div>
+
+                        {{-- Kategori --}}
+                        <div class="form-group">
+                            <label>Kategori</label>
+                            <select name="category" class="form-control" required>
+                                <option value="">-- Pilih Kategori --</option>
+                                @php
+                                    $categories = [
+                                        'kuliner' => 'Kuliner',
+                                        'fashion' => 'Fashion',
+                                        'kerajinan' => 'Kerajinan',
+                                        'jasa' => 'Jasa',
+                                        'pertanian' => 'Pertanian',
+                                        'lainnya' => 'Lainnya',
+                                    ];
+                                @endphp
+
+                                @foreach ($categories as $key => $label)
+                                    <option value="{{ $key }}" {{ old('category', $umkm->category) === $key ? 'selected' : '' }}>
+                                        {{ $label }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- Lokasi --}}
+                        <div class="form-group">
+                            <label>Lokasi</label>
+                            <input type="text" name="location" class="form-control"
+                                value="{{ old('location', $umkm->location) }}">
+                        </div>
+
+                        {{-- WhatsApp --}}
+                        <div class="form-group">
+                            <label>WhatsApp</label>
+                            <input type="text" name="contact_wa" class="form-control"
+                                value="{{ old('contact_wa', $umkm->contact_wa) }}" placeholder="Contoh: 628123456789">
+                        </div>
+
+                        {{-- Logo --}}
+                        <div class="form-group">
+                            <label>Logo</label>
+                            <input type="file" name="logo" class="form-control-file">
+
+                            <small class="text-muted">
+                                Format didukung: JPG, JPEG, PNG
+                            </small>
+
+                            @if ($umkm->logo)
+                                <div class="mt-2">
+                                    <small class="text-muted d-block">Logo saat ini:</small>
+                                    <img src="{{ asset('storage/' . $umkm->logo) }}" width="60" class="rounded shadow-sm mt-1">
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- Deskripsi --}}
+                        <div class="form-group">
+                            <label>Deskripsi</label>
+                            <textarea name="description" class="form-control"
+                                rows="3">{{ old('description', $umkm->description) }}</textarea>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            Batal
+                        </button>
+                        <button type="submit" class="btn btn-warning">
+                            Update
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    @endforeach
+
     <!-- MODAL CREATE UMKM -->
     <div class="modal fade" id="modalCreateUmkm" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -233,6 +237,10 @@
                     <div class="form-group">
                         <label>Logo</label>
                         <input type="file" name="logo" class="form-control-file">
+
+                        <small class="text-muted">
+                            Format didukung: JPG, JPEG, PNG
+                        </small>
                     </div>
 
                     <div class="form-group">

@@ -25,7 +25,7 @@
         <thead>
             <tr>
                 <th width="5%">#</th>
-                <th>Nama Kategori</th>
+                <th width="45%">Nama Kategori</th>
                 <th width="10%">Point</th>
                 <th width="20%">Aksi</th>
             </tr>
@@ -45,6 +45,11 @@
                             @csrf @method('DELETE')
                             <button onclick="return confirm('Hapus data ini?')" class="btn btn-sm btn-danger">Hapus</button>
                         </form>
+
+                        <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#massUserPointModal"
+                            data-id="{{ $kategori->id }}" data-name="{{ $kategori->name }}" data-point="{{ $kategori->point }}">
+                            Tambah Point User
+                        </button>
                     </td>
                 </tr>
 
@@ -85,6 +90,58 @@
         </tbody>
     </table>
 
+    <div class="modal fade" id="massUserPointModal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <form method="POST" action="{{ route('points.add-by-category') }}">
+                    @csrf
+
+                    <input type="hidden" name="point_kategori_id" id="kategori_id">
+
+                    <div class="modal-header">
+                        <h5>Tambah Point User</h5>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <div class="alert alert-info">
+                            <strong>Kategori:</strong>
+                            <span id="kategori_name"></span><br>
+                            <strong>Point per User:</strong>
+                            <span id="kategori_point"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Pilih User</label>
+                            <select name="users[]" id="user-select" class="form-control" multiple required>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}">
+                                        {{ $user->name }} ({{ $user->email }}) - Point: {{ $user->point }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <small class="text-muted">
+                                Ketik untuk mencari user, atau pilih multiple dengan CTRL / CMD
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success"
+                            onclick="return confirm('Tambahkan point ke user terpilih?')">
+                            Tambahkan Point
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+
     {{ $pointKategoris->links('pagination::bootstrap-4') }}
 
     <!-- Create Modal -->
@@ -118,8 +175,13 @@
 
 @endsection
 
+@push('styles')
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+@endpush
+
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <script>
         @if(session('success'))
             Swal.fire({
@@ -140,5 +202,20 @@
                 showConfirmButton: false
             });
         @endif
+
+        $('#massUserPointModal').on('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+
+            $('#kategori_id').val(button.data('id'));
+            $('#kategori_name').text(button.data('name'));
+            $('#kategori_point').text(button.data('point'));
+        });
+
+        // Inisialisasi Select2 untuk select user
+        $('#user-select').select2({
+            placeholder: 'Pilih atau cari user',
+            allowClear: true,
+            width: '100%'
+        });
     </script>
 @endpush

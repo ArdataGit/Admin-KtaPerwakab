@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\DonationCampaignApiController;
 use App\Http\Controllers\Api\InfoDukaApiController;
 use App\Http\Controllers\Api\NewsArticleController;
+use App\Http\Controllers\Api\TripayApiController;
 use App\Http\Controllers\Api\UmkmApiController;
 use App\Http\Controllers\Api\UmkmProductApiController;
 use App\Http\Controllers\MasterPenukaranPoinController;
@@ -15,6 +17,10 @@ use App\Http\Controllers\Api\MembershipFeeController;
 use App\Http\Controllers\Api\UserController;
 
 use App\Http\Controllers\Api\PublikasiApiController;
+
+use App\Http\Controllers\Api\TripayCallbackController;
+
+use App\Http\Controllers\Api\DonationApiController;
 
 Route::post('/register', [AuthApiController::class, 'register']);
 Route::post('/login', [AuthApiController::class, 'login']);
@@ -55,6 +61,18 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/product/{id}', [UmkmProductApiController::class, 'show']);
     });
+
+    Route::prefix('donation-campaigns')->group(function () {
+
+        // List campaign
+        Route::get('/', [DonationCampaignApiController::class, 'index']);
+
+        // Detail campaign
+        Route::get('/{id}', [DonationCampaignApiController::class, 'show']);
+    });
+    Route::post('/donations', [DonationApiController::class, 'store']);
+    Route::get('/tripay/payment-methods', [TripayApiController::class, 'paymentMethods']);
+    Route::post('/tripay/callback', [TripayCallbackController::class, 'handle']);
 
     Route::prefix('marketplace')->group(function () {
 

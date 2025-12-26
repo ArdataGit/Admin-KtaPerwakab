@@ -7,6 +7,7 @@ use App\Models\PointKategori;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class UserPointController extends Controller
@@ -123,6 +124,43 @@ class UserPointController extends Controller
         $user->increment('point', $userPoint->pointKategori->point);
 
         return back()->with('point_success', 'Kegiatan berhasil ditambahkan: ' . $userPoint->pointKategori->name . ' (' . $userPoint->pointKategori->point . ' points)');
+    }
+
+    public function storeMass(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'point_kategori_id' => ['required', 'integer', 'exists:point_kategori,id'], // Match form name
+            'users' => ['required', 'array', 'min:1'], // Match form name (users[])
+            'users.*' => ['integer', 'exists:users,id'], // Validate array items
+        ]);
+
+        $kategori = PointKategori::findOrFail($validated['point_kategori_id']);
+        $point = $kategori->point;
+        $createdBy = auth()->id(); // Assume authenticated user; adjust if needed
+
+        DB::transaction(function () use ($validated, $kategori, $point, $createdBy) {
+            // Prepare insert data for UserPoint history
+            $insertData = [];
+            foreach ($validated['users'] as $userId) {
+                $insertData[] = [
+                    'id_category' => $kategori->id,
+                    'id_user' => $userId,
+                    'created_by' => $createdBy,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            UserPoint::insert($insertData);
+
+            // Increment points on users in one query
+            User::whereIn('id', $validated['users'])
+                ->increment('point', $point);
+        });
+
+        return redirect()
+            ->route('point-kategoris.index') // Redirect back to category index for consistency
+            ->with('success', 'Point kategori berhasil ditambahkan ke user terpilih');
     }
 
 
