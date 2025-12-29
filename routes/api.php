@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\NewsArticleController;
 use App\Http\Controllers\Api\TripayApiController;
 use App\Http\Controllers\Api\UmkmApiController;
 use App\Http\Controllers\Api\UmkmProductApiController;
+use App\Http\Controllers\Api\StrukturOrganisasiApiController;
 use App\Http\Controllers\MasterPenukaranPoinController;
 use App\Http\Controllers\TukarPointController;
 use App\Http\Controllers\UserPointController;
@@ -21,12 +22,21 @@ use App\Http\Controllers\Api\PublikasiApiController;
 use App\Http\Controllers\Api\TripayCallbackController;
 
 use App\Http\Controllers\Api\DonationApiController;
+<<<<<<< HEAD
 use App\Http\Controllers\Api\HomeBannerApiController;
+=======
+use App\Http\Controllers\Api\ForgotPasswordController;
+
 
 Route::post('/register', [AuthApiController::class, 'register']);
 Route::post('/login', [AuthApiController::class, 'login']);
 
 Route::post('/tripay/callback', [TripayCallbackController::class, 'handle']);
+=======
+// Forgot Password API (Public - tidak perlu auth)
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/validate-reset-token', [ForgotPasswordController::class, 'validateToken']);
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
 
 // routes/api.php
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
@@ -148,10 +158,58 @@ Route::middleware('auth:sanctum')->group(function () {
     */
     Route::prefix('donation-campaigns')->group(function () {
 
-        // List campaign
-        Route::get('/', [DonationCampaignApiController::class, 'index']);
+            // List campaign
+            Route::get('/', [DonationCampaignApiController::class, 'index']);
 
-        // Detail campaign
-        Route::get('/{id}', [DonationCampaignApiController::class, 'show']);
+            // Detail campaign
+            Route::get('/{id}', [DonationCampaignApiController::class, 'show']);
+        });
     });
+    Route::post('/donations', [DonationApiController::class, 'store']);
+    Route::get('/tripay/payment-methods', [TripayApiController::class, 'paymentMethods']);
+
+    Route::prefix('marketplace')->group(function () {
+
+        // List UMKM (+ filter kategori)
+        Route::get('/umkms', [UmkmApiController::class, 'index']);
+
+        // Detail UMKM + produk + foto
+        Route::get('/umkms/{id}', [UmkmApiController::class, 'show']);
+
+        // semua produk (global marketplace)
+        Route::get('/products', [UmkmProductApiController::class, 'index']);
+
+        // detail produk
+        Route::get('/products/{id}', [UmkmProductApiController::class, 'show']);
+
+    });
+
+    Route::get('/publikasi', [PublikasiApiController::class, 'index']);
+    Route::get('/publikasi/{id}', [PublikasiApiController::class, 'show']);
+
+    Route::get('/struktur-organisasi', [StrukturOrganisasiApiController::class, 'show']);
+
+    Route::get('/info-duka', [InfoDukaApiController::class, 'index']);
+    Route::get('/info-duka/{id}', [InfoDukaApiController::class, 'show']);
+
+    Route::get(
+        '/master-penukaran-poin',
+        [MasterPenukaranPoinController::class, 'apiIndex']
+    );
+
+    Route::get(
+        '/master-penukaran-poin/{id}',
+        [MasterPenukaranPoinController::class, 'apiDetail']
+    );
+
+    Route::get(
+        '/users/{userId}/tukar-point',
+        [TukarPointController::class, 'apiHistoryByUser']
+    );
+    Route::get(
+        '/users/{userId}/point-history',
+        [UserPointController::class, 'apiHistoryByUser']
+    );
 });
+
+Route::middleware('auth:sanctum')->post('/logout', [AuthApiController::class, 'logout']);

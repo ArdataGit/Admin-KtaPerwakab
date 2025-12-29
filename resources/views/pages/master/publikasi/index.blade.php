@@ -2,7 +2,31 @@
 
 @section('content')
 
-    <a href="{{ route('publikasi.create') }}" class="btn btn-primary mb-3">Tambah Publikasi</a>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a href="{{ route('publikasi.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Tambah Publikasi
+        </a>
+        
+        <form method="GET" action="{{ route('publikasi.index') }}" class="d-flex gap-2" style="max-width: 500px;">
+            <input type="text" name="search" class="form-control" placeholder="Cari judul atau pembuat..." 
+                   value="{{ request('search') }}" style="min-width: 250px;">
+            <button type="submit" class="btn btn-secondary text-nowrap">
+                <i class="fas fa-search"></i> Cari
+            </button>
+            @if(request('search'))
+                <a href="{{ route('publikasi.index') }}" class="btn btn-outline-secondary text-nowrap">
+                    <i class="fas fa-times"></i> Reset
+                </a>
+            @endif
+        </form>
+    </div>
+
+    @if(request('search'))
+        <div class="alert alert-info">
+            Hasil pencarian untuk: <strong>{{ request('search') }}</strong> 
+            ({{ $publikasi->total() }} data ditemukan)
+        </div>
+    @endif
 
     <table class="table table-bordered">
         <thead>
