@@ -87,6 +87,13 @@
         </li>
 
         <li class="nav-item">
+            <a class="nav-link" href="{{ route('struktur-organisasi.index') }}">
+                <i class="fas fa-sitemap"></i>
+                <span>Struktur Organisasi</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
             <a class="nav-link" href="{{ route('info-duka.index') }}">
                 <i class="fas fa-bell"></i>
                 <span>Info Duka</span>

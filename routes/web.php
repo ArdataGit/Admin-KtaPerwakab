@@ -11,6 +11,7 @@ use App\Http\Controllers\TukarPointController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PublikasiController;
 use App\Http\Controllers\UserPointController;
+use App\Http\Controllers\StrukturOrganisasiController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MembershipFeeController;
 use App\Http\Controllers\UmkmController;
@@ -114,6 +115,10 @@ Route::middleware('auth')->group(function () {
 
         Route::post('/publikasi', [PublikasiController::class, 'store'])->name('publikasi.store');
 
+        // Delete individual photo/video (HARUS SEBELUM route {id})
+        Route::delete('/publikasi/photo/{photoId}', [PublikasiController::class, 'deletePhoto'])->name('publikasi.photo.delete');
+        Route::delete('/publikasi/video/{videoId}', [PublikasiController::class, 'deleteVideo'])->name('publikasi.video.delete');
+
         Route::get('/publikasi/{id}', [PublikasiController::class, 'show'])->name('publikasi.show');
 
         Route::get('/publikasi/{id}/edit', [PublikasiController::class, 'edit'])->name('publikasi.edit');
@@ -161,6 +166,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/divisi', [DivisionController::class, 'store'])->name('divisi.store');
         Route::put('/divisi/{division}', [DivisionController::class, 'update'])->name('divisi.update');
         Route::delete('/divisi/{division}', [DivisionController::class, 'destroy'])->name('divisi.destroy');
+
+        // STRUKTUR ORGANISASI
+        Route::get('/struktur-organisasi', [StrukturOrganisasiController::class, 'index'])->name('struktur-organisasi.index');
+        Route::get('/struktur-organisasi/create', [StrukturOrganisasiController::class, 'create'])->name('struktur-organisasi.create');
+        Route::post('/struktur-organisasi', [StrukturOrganisasiController::class, 'store'])->name('struktur-organisasi.store');
+        Route::get('/struktur-organisasi/edit', [StrukturOrganisasiController::class, 'edit'])->name('struktur-organisasi.edit');
+        Route::put('/struktur-organisasi', [StrukturOrganisasiController::class, 'update'])->name('struktur-organisasi.update');
+        Route::delete('/struktur-organisasi', [StrukturOrganisasiController::class, 'destroy'])->name('struktur-organisasi.destroy');
 
         // Routes untuk Point Kategori (CRUD manual)
         Route::get('/point-kategoris', [PointKategoriController::class, 'index'])->name('point-kategoris.index');

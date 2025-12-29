@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\NewsArticleController;
 use App\Http\Controllers\Api\TripayApiController;
 use App\Http\Controllers\Api\UmkmApiController;
 use App\Http\Controllers\Api\UmkmProductApiController;
+use App\Http\Controllers\Api\StrukturOrganisasiApiController;
 use App\Http\Controllers\MasterPenukaranPoinController;
 use App\Http\Controllers\TukarPointController;
 use App\Http\Controllers\UserPointController;
@@ -21,9 +22,15 @@ use App\Http\Controllers\Api\PublikasiApiController;
 use App\Http\Controllers\Api\TripayCallbackController;
 
 use App\Http\Controllers\Api\DonationApiController;
+use App\Http\Controllers\Api\ForgotPasswordController;
 
 Route::post('/register', [AuthApiController::class, 'register']);
 Route::post('/login', [AuthApiController::class, 'login']);
+
+// Forgot Password API (Public - tidak perlu auth)
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/validate-reset-token', [ForgotPasswordController::class, 'validateToken']);
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
 
 // routes/api.php
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
@@ -93,6 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/publikasi', [PublikasiApiController::class, 'index']);
     Route::get('/publikasi/{id}', [PublikasiApiController::class, 'show']);
 
+    Route::get('/struktur-organisasi', [StrukturOrganisasiApiController::class, 'show']);
 
     Route::get('/info-duka', [InfoDukaApiController::class, 'index']);
     Route::get('/info-duka/{id}', [InfoDukaApiController::class, 'show']);
