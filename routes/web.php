@@ -17,6 +17,7 @@ use App\Http\Controllers\UmkmController;
 use App\Http\Controllers\UmkmProductController;
 use App\Http\Controllers\UmkmProductPhotoController;
 use App\Http\Controllers\DonationCampaignController;
+use App\Http\Controllers\DonationTransactionController;
 
 use App\Http\Controllers\AuthController;
 
@@ -148,6 +149,19 @@ Route::middleware('auth')->group(function () {
         // DELETE
         Route::delete('/info-duka/{id}', [InfoDukaController::class, 'destroy'])
             ->name('info-duka.destroy');
+      
+      
+        // LIST
+        Route::get(
+            '/donation-transactions',
+            [DonationTransactionController::class, 'index']
+        )->name('master.donation-transaction.index');
+
+        // DETAIL
+        Route::get(
+            '/donation-transactions/{donation}',
+            [DonationTransactionController::class, 'show']
+        )->name('master.donation-transaction.show');
 
 
         // POSISI

@@ -1,43 +1,58 @@
 <?php
 
-namespace App\Services;
+namespace App\Http\Services;
 
 use Illuminate\Support\Facades\Http;
 
 class TripayService
 {
-    protected string $baseUrl;
     protected string $apiKey;
+    protected string $privateKey;
+    protected string $merchantCode;
+    protected string $baseUrl;
 
     public function __construct()
     {
-        $this->baseUrl = config('tripay.base_url');
-        $this->apiKey = config('tripay.api_key');
-    }
-
-    protected function request()
-    {
-        return Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->apiKey,
-            'Accept' => 'application/json',
-        ]);
+        $this->apiKey       = config('tripay.api_key');
+        $this->privateKey   = config('tripay.private_key');
+        $this->merchantCode = config('tripay.merchant_code');
+        $this->baseUrl      = config('tripay.base_url');
     }
 
     /**
-     * Ambil metode pembayaran Tripay
+     * GET payment methods
      */
     public function paymentMethods()
     {
-        return $this->request()
-            ->get($this->baseUrl . '/merchant/payment-channel');
+        return Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->apiKey,
+        ])->get($this->baseUrl . '/merchant/payment-channel');
     }
 
     /**
-     * Create transaksi Tripay
+     * CREATE TRANSACTION
      */
     public function createTransaction(array $payload)
     {
-        return $this->request()
-            ->post($this->baseUrl . '/transaction/create', $payload);
+        /**
+         * Tripay signature format (WAJIB):
+         * hash_hmac('sha256', merchantCode + merchantRef + amount, privateKey)
+         */
+        $signature = hash_hmac(
+            'sha256',
+            $this->merchantCode .
+            $payload['merchant_ref'] .
+            $payload['amount'],
+            $this->privateKey
+        );
+
+        return Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->apiKey,
+        ])->asForm()->post(
+            $this->baseUrl . '/transaction/create',
+            array_merge($payload, [
+                'signature' => $signature,
+            ])
+        );
     }
 }
