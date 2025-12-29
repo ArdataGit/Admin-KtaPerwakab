@@ -10,33 +10,48 @@ class NewsArticleController extends Controller
     /**
      * LIST ARTIKEL (Mobile)
      */
-    public function index(Request $request)
-    {
-        $baseQuery = NewsArticle::with('author:id,name')
-            ->latest();
+public function index(Request $request)
+{
+    $baseQuery = NewsArticle::with('author:id,name')
+        ->latest();
 
-        if ($request->filled('category')) {
-            $baseQuery->where('category', $request->category);
-        }
-
-        $featured = (clone $baseQuery)
-            ->take(3)
-            ->get();
-
-        $featuredIds = $featured->pluck('id');
-
-        $articles = (clone $baseQuery)
-            ->whereNotIn('id', $featuredIds)
-            ->paginate(10);
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'featured' => $featured->map(fn($a) => $this->formatArticle($a)),
-                'articles' => $articles->through(fn($a) => $this->formatArticle($a)),
-            ],
-        ]);
+    if ($request->filled('category')) {
+        $baseQuery->where('category', $request->category);
     }
+
+    if ($request->has('search')) {
+        $search = trim($request->search);
+
+        if ($search !== '') {
+            $baseQuery->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%")
+                  ->orWhereHas('author', function ($q2) use ($search) {
+                      $q2->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+    }
+
+    $featured = (clone $baseQuery)
+        ->take(3)
+        ->get();
+
+    $featuredIds = $featured->pluck('id');
+
+    $articles = (clone $baseQuery)
+        ->whereNotIn('id', $featuredIds)
+        ->paginate(10);
+
+    return response()->json([
+        'success' => true,
+        'data' => [
+            'featured' => $featured->map(fn($a) => $this->formatArticle($a)),
+            'articles' => $articles->through(fn($a) => $this->formatArticle($a)),
+        ],
+    ]);
+}
+
 
 
     /**

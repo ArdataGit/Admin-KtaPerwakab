@@ -18,6 +18,7 @@ use App\Http\Controllers\UmkmProductController;
 use App\Http\Controllers\UmkmProductPhotoController;
 use App\Http\Controllers\DonationCampaignController;
 use App\Http\Controllers\DonationTransactionController;
+use App\Http\Controllers\HomeBannerController;
 
 use App\Http\Controllers\AuthController;
 
@@ -45,6 +46,19 @@ Route::middleware('auth')->group(function () {
         ->name('membership-fee.validate');
     // Group Master Route
     Route::prefix('master')->group(function () {
+      
+      
+        Route::get('/home-banner', [HomeBannerController::class, 'index'])
+            ->name('home-banner.index');
+
+        Route::post('/home-banner', [HomeBannerController::class, 'store'])
+            ->name('home-banner.store');
+
+        Route::post('/home-banner/{id}', [HomeBannerController::class, 'update'])
+            ->name('home-banner.update');
+
+        Route::delete('/home-banner/{id}', [HomeBannerController::class, 'destroy'])
+            ->name('home-banner.destroy');
 
         Route::prefix('/penukaran-poin')->group(function () {
             Route::get('/', [MasterPenukaranPoinController::class, 'index'])

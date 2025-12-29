@@ -93,7 +93,7 @@ class MembershipFeeController extends Controller
         }
 
         return redirect()
-            ->route('membership-fee.index', $fee->id)
+    		->route('membership-fee.index')
             ->with('success', 'Status iuran berhasil diperbarui');
     }
 }

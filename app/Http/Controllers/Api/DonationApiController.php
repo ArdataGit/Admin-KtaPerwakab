@@ -70,6 +70,7 @@ class DonationApiController extends Controller
                     'campaign_title' => $donation->campaign?->title ?? '-',
                     'amount' => (int) $donation->amount,
                     'status' => $donation->status, // PAID | PENDING | UNPAID | EXPIRED
+                    'checkout_url' => $donation->tripayTransaction->tripay_payload, 
                     'created_at' => $donation->created_at->toDateTimeString(),
                 ];
             })->values(),

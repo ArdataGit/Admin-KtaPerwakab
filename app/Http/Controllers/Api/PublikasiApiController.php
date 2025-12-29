@@ -12,20 +12,31 @@ class PublikasiApiController extends Controller
      * GET /api/publikasi
      * List publikasi (paginated)
      */
-    public function index(Request $request)
-    {
-        $perPage = $request->get('per_page', 10);
+      public function index(Request $request)
+      {
+          $perPage = $request->get('per_page', 10);
+          $search  = trim((string) $request->get('search'));
 
-        $data = Publikasi::with(['photos', 'videos'])
-            ->latest()
-            ->paginate($perPage);
+          $query = Publikasi::with(['photos', 'videos'])
+              ->latest();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Daftar publikasi',
-            'data' => $data
-        ]);
-    }
+          // 🔍 SEARCH
+          if ($search !== '') {
+              $query->where(function ($q) use ($search) {
+                  $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+              });
+          }
+
+          $data = $query->paginate($perPage);
+
+          return response()->json([
+              'success' => true,
+              'message' => 'Daftar publikasi',
+              'data'    => $data,
+          ]);
+      }
+
 
     /**
      * GET /api/publikasi/{id}

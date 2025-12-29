@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\PublikasiApiController;
 use App\Http\Controllers\Api\TripayCallbackController;
 
 use App\Http\Controllers\Api\DonationApiController;
+use App\Http\Controllers\Api\HomeBannerApiController;
 
 Route::post('/register', [AuthApiController::class, 'register']);
 Route::post('/login', [AuthApiController::class, 'login']);
@@ -50,6 +51,9 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::post('/logout', [AuthApiController::class, 'logout']);
+  
+  	Route::get('/home/banners', [HomeBannerApiController::class, 'index']);
+
 
     /*
     |--------------------------------------------------------------------------

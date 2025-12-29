@@ -19,12 +19,25 @@ class UmkmProductApiController extends Controller
             'umkm'
         ])->latest();
 
-        // filter berdasarkan UMKM
+        // 🔍 SEARCH PRODUK / UMKM
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+
+            $query->where(function ($q) use ($search) {
+                $q->where('product_name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhereHas('umkm', function ($umkm) use ($search) {
+                      $umkm->where('umkm_name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // 🏪 filter berdasarkan UMKM
         if ($request->filled('umkm_id')) {
             $query->where('umkm_id', $request->umkm_id);
         }
 
-        // filter berdasarkan kategori UMKM
+        // 🏷 filter berdasarkan kategori UMKM
         if ($request->filled('category')) {
             $query->whereHas('umkm', function ($q) use ($request) {
                 $q->where('category', $request->category);
@@ -36,6 +49,7 @@ class UmkmProductApiController extends Controller
             'data' => $query->paginate(10),
         ]);
     }
+
 
     /**
      * Detail satu produk

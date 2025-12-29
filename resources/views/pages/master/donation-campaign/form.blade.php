@@ -5,8 +5,13 @@
 
 <div class="form-group">
     <label>Deskripsi</label>
-    <textarea name="description" class="form-control" rows="4"
-        required>{{ old('description', $data->description ?? '') }}</textarea>
+    <textarea
+        name="description"
+        id="description-editor"
+        class="form-control"
+        rows="6"
+        required
+    >{{ old('description', $data->description ?? '') }}</textarea>
 </div>
 
 <div class="form-row">
@@ -50,3 +55,38 @@
         </option>
     </select>
 </div>
+
+@push('scripts')
+<script src="https://cdn.tiny.cloud/1/zvffqh7jgnjj2h4r82iobtthnkoyd6hw1zvvt9c33ktqq6r3/tinymce/6/tinymce.min.js"
+        referrerpolicy="origin"></script>
+
+<script>
+    tinymce.init({
+        selector: '#description-editor',
+        height: 300,
+        menubar: false,
+        branding: false,
+
+        plugins: 'lists link image table code',
+
+        toolbar:
+            'undo redo | formatselect | ' +
+            'bold italic underline | alignleft aligncenter alignright | ' +
+            'bullist numlist | link image | removeformat | code',
+
+        content_style: `
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 14px;
+            }
+        `,
+
+        // PENTING: pastikan value masuk ke textarea saat submit
+        setup: function (editor) {
+            editor.on('change', function () {
+                tinymce.triggerSave();
+            });
+        }
+    });
+</script>
+@endpush

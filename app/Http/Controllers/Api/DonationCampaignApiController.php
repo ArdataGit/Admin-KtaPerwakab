@@ -12,30 +12,42 @@ class DonationCampaignApiController extends Controller
     /**
      * List Campaign Donasi (Public)
      */
-    public function index(Request $request)
-    {
-        $perPage = $request->get('per_page', 10);
+      public function index(Request $request)
+      {
+          $perPage = $request->get('per_page', 10);
+          $search  = trim((string) $request->get('search'));
 
-        $campaigns = DonationCampaign::query()
-            ->where('is_active', true)
-            ->orderByDesc('start_date')
-            ->paginate($perPage);
+          $campaigns = DonationCampaign::query()
+              ->where('is_active', true)
 
-        return response()->json([
-            'success' => true,
-            'message' => 'List campaign donasi',
-            'data' => [
-                'campaigns' => $campaigns->items(),
-                'pagination' => [
-                    'current_page' => $campaigns->currentPage(),
-                    'last_page' => $campaigns->lastPage(),
-                    'per_page' => $campaigns->perPage(),
-                    'total' => $campaigns->total(),
-                ],
-            ],
-        ]);
+              // 🔍 SEARCH CAMPAIGN
+              ->when($search !== '', function ($query) use ($search) {
+                  $query->where(function ($q) use ($search) {
+                      $q->where('title', 'like', "%{$search}%")
+                        ->orWhere('description', 'like', "%{$search}%");
+                        // ➕ tambahkan kolom lain jika ada
+                        // ->orWhere('organizer_name', 'like', "%{$search}%");
+                  });
+              })
 
-    }
+              ->orderByDesc('start_date')
+              ->paginate($perPage);
+
+          return response()->json([
+              'success' => true,
+              'message' => 'List campaign donasi',
+              'data' => [
+                  'campaigns' => $campaigns->items(),
+                  'pagination' => [
+                      'current_page' => $campaigns->currentPage(),
+                      'last_page' => $campaigns->lastPage(),
+                      'per_page' => $campaigns->perPage(),
+                      'total' => $campaigns->total(),
+                  ],
+              ],
+          ]);
+      }
+
 
     /**
      * Detail Campaign Donasi
@@ -50,8 +62,10 @@ class DonationCampaignApiController extends Controller
             'message' => 'Detail campaign donasi',
             'data' => [
                 'id' => $campaign->id,
+                'donations' => $campaign->donations,
                 'title' => $campaign->title,
                 'description' => $campaign->description,
+                'total_collected' => $campaign->total_collected,
                 'thumbnail' => $campaign->thumbnail
                     ? asset('storage/' . $campaign->thumbnail)
                     : null,

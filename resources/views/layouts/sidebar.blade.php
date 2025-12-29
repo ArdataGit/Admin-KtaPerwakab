@@ -22,6 +22,7 @@
             <div class="bg-white py-2 collapse-inner rounded">
                 <a class="collapse-item" href="{{ route('dashboard') }}">Dashboard Utama</a>
                 <a class="collapse-item" href="#">Analytics</a>
+                <a class="collapse-item" href="/master/home-banner">Banners</a>
             </div>
         </div>
     </li>
