@@ -17,7 +17,29 @@ class UmkmProduct extends Model
         'price',
         'description',
         'youtube_link',
+        'status',
+        'approved_at',
     ];
+
+    protected $casts = [
+        'approved_at' => 'datetime',
+    ];
+
+    // Scope untuk filter berdasarkan status
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
+    }
 
     public function umkm(): BelongsTo
     {

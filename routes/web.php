@@ -292,6 +292,13 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{umkm}/products/{product}', [UmkmProductController::class, 'destroy'])
                 ->name('umkm.products.destroy');
 
+            // Approve & Reject Product
+            Route::post('/{umkm}/products/{product}/approve', [UmkmProductController::class, 'approve'])
+                ->name('umkm.products.approve');
+
+            Route::post('/{umkm}/products/{product}/reject', [UmkmProductController::class, 'reject'])
+                ->name('umkm.products.reject');
+
         });
 
         // FOTO PRODUK UMKM

@@ -185,12 +185,33 @@ Route::middleware('auth:sanctum')->group(function () {
         // Detail UMKM + produk + foto
         Route::get('/umkms/{id}', [UmkmApiController::class, 'show']);
 
-        // semua produk (global marketplace)
+        // semua produk (global marketplace) - HANYA APPROVED
         Route::get('/products', [UmkmProductApiController::class, 'index']);
 
-        // detail produk
+        // detail produk - HANYA APPROVED
         Route::get('/products/{id}', [UmkmProductApiController::class, 'show']);
 
+    });
+
+    // Route untuk USER (butuh auth)
+    Route::middleware('auth:sanctum')->group(function () {
+        
+        // Produk milik user (semua status)
+        Route::get('/my-products', [UmkmProductApiController::class, 'myProducts']);
+        
+        // Tambah produk baru (otomatis pending)
+        Route::post('/my-products', [UmkmProductApiController::class, 'store']);
+        
+        // Update produk milik user
+        Route::put('/my-products/{id}', [UmkmProductApiController::class, 'update']);
+        Route::post('/my-products/{id}', [UmkmProductApiController::class, 'update']); // untuk form-data
+        
+        // Hapus produk milik user
+        Route::delete('/my-products/{id}', [UmkmProductApiController::class, 'destroy']);
+        
+        // Hapus foto produk
+        Route::delete('/my-products/photos/{photoId}', [UmkmProductApiController::class, 'deletePhoto']);
+        
     });
 
     Route::get('/publikasi', [PublikasiApiController::class, 'index']);

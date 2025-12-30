@@ -17,7 +17,7 @@
                 <thead>
                     <tr>
                         <th width="5%">#</th>
-                        <th>Nama UMKM</th>
+                        <th>Nama Pemilik</th>
                         <th>Kategori</th>
                         <th>Lokasi</th>
                         <th width="12%">Logo</th>
@@ -31,7 +31,9 @@
                             <td>{{ $umkms->firstItem() + $i }}</td>
 
                             <td>
-                                <strong>{{ $umkm->umkm_name }}</strong>
+                                <strong>{{ $umkm->user->name ?? '-' }}</strong>
+                                <br>
+                                <small class="text-muted">{{ $umkm->user->email ?? '' }}</small>
                             </td>
 
                             <td>{{ ucfirst($umkm->category) }}</td>
@@ -107,11 +109,24 @@
 
                     <div class="modal-body">
 
-                        {{-- Nama UMKM --}}
+                        {{-- Pilih User --}}
                         <div class="form-group">
-                            <label>Nama UMKM</label>
-                            <input type="text" name="umkm_name" class="form-control"
-                                value="{{ old('umkm_name', $umkm->umkm_name) }}" required>
+                            <label>Pilih Pemilik UMKM</label>
+                            <select name="user_id" class="form-control" required>
+                                <option value="">-- Pilih User --</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}" {{ old('user_id', $umkm->user_id) == $user->id ? 'selected' : '' }}>
+                                        {{ $user->name }} ({{ $user->email }})
+                                    </option>
+                                @endforeach
+                                {{-- Tampilkan user yang sedang dipilih meskipun sudah punya UMKM --}}
+                                @if($umkm->user && !$users->contains('id', $umkm->user_id))
+                                    <option value="{{ $umkm->user_id }}" selected>
+                                        {{ $umkm->user->name }} ({{ $umkm->user->email }})
+                                    </option>
+                                @endif
+                            </select>
+                            <small class="text-muted">Hanya user yang belum memiliki UMKM yang ditampilkan</small>
                         </div>
 
                         {{-- Kategori --}}
@@ -206,8 +221,16 @@
                 <div class="modal-body">
 
                     <div class="form-group">
-                        <label>Nama UMKM</label>
-                        <input type="text" name="umkm_name" class="form-control" required>
+                        <label>Pilih Pemilik UMKM</label>
+                        <select name="user_id" class="form-control" required>
+                            <option value="">-- Pilih User --</option>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}">
+                                    {{ $user->name }} ({{ $user->email }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">Hanya user yang belum memiliki UMKM yang ditampilkan</small>
                     </div>
 
                     <div class="form-group">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Umkm;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -12,9 +13,10 @@ class UmkmController extends Controller
 {
     public function index()
     {
-        $umkms = Umkm::latest()->paginate(10);
+        $umkms = Umkm::with('user')->latest()->paginate(10);
+        $users = User::whereDoesntHave('umkm')->get();
 
-        return view('pages.master.umkm.index', compact('umkms'));
+        return view('pages.master.umkm.index', compact('umkms', 'users'));
     }
 
     public function create()
@@ -25,7 +27,7 @@ class UmkmController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'umkm_name' => 'required|string|max:255',
+            'user_id' => 'required|exists:users,id|unique:umkm,user_id',
             'category' => 'required|string|max:100',
             'logo' => 'nullable|image|max:2048',
             'contact_wa' => 'nullable|string|max:20',
@@ -52,7 +54,7 @@ class UmkmController extends Controller
     public function update(Request $request, Umkm $umkm)
     {
         $data = $request->validate([
-            'umkm_name' => 'required|string|max:255',
+            'user_id' => 'required|exists:users,id|unique:umkm,user_id,' . $umkm->id,
             'category' => 'required|string|max:100',
             'logo' => 'nullable|image|max:2048',
             'contact_wa' => 'nullable|string|max:20',
