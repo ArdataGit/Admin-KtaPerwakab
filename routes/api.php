@@ -22,17 +22,15 @@ use App\Http\Controllers\Api\PublikasiApiController;
 use App\Http\Controllers\Api\TripayCallbackController;
 
 use App\Http\Controllers\Api\DonationApiController;
-<<<<<<< HEAD
 use App\Http\Controllers\Api\HomeBannerApiController;
-=======
 use App\Http\Controllers\Api\ForgotPasswordController;
+use App\Http\Controllers\Api\BisnisApiController;
 
 
 Route::post('/register', [AuthApiController::class, 'register']);
 Route::post('/login', [AuthApiController::class, 'login']);
 
 Route::post('/tripay/callback', [TripayCallbackController::class, 'handle']);
-=======
 // Forgot Password API (Public - tidak perlu auth)
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::post('/validate-reset-token', [ForgotPasswordController::class, 'validateToken']);
@@ -63,6 +61,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthApiController::class, 'logout']);
   
   	Route::get('/home/banners', [HomeBannerApiController::class, 'index']);
+  
+  
+    /*
+    |--------------------------------------------------------------------------
+    | Bisnis
+    |--------------------------------------------------------------------------
+    */
+    Route::prefix('bisnis')->group(function () {
+        Route::get('/', [BisnisApiController::class, 'index']);
+        Route::get('/{slug}', [BisnisApiController::class, 'show']);
+    });
 
 
     /*
@@ -210,6 +219,5 @@ Route::middleware('auth:sanctum')->group(function () {
         '/users/{userId}/point-history',
         [UserPointController::class, 'apiHistoryByUser']
     );
-});
 
 Route::middleware('auth:sanctum')->post('/logout', [AuthApiController::class, 'logout']);

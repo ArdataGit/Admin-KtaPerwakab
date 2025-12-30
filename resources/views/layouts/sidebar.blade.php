@@ -86,6 +86,12 @@
                 <span>Publikasi Karya</span>
             </a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ route('bisnis.index') }}">
+                <i class="fas fa-building"></i>
+                <span>Bisnis</span>
+            </a>
+        </li>
 
         <li class="nav-item">
             <a class="nav-link" href="{{ route('struktur-organisasi.index') }}">

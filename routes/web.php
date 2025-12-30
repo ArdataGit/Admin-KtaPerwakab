@@ -20,6 +20,7 @@ use App\Http\Controllers\UmkmProductPhotoController;
 use App\Http\Controllers\DonationCampaignController;
 use App\Http\Controllers\DonationTransactionController;
 use App\Http\Controllers\HomeBannerController;
+use App\Http\Controllers\BisnisController;
 
 use App\Http\Controllers\AuthController;
 
@@ -74,6 +75,20 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{masterPenukaranPoin}', [MasterPenukaranPoinController::class, 'destroy'])
                 ->name('penukaran-poin.destroy');
         });
+      
+        Route::prefix('bisnis')->name('bisnis.')->group(function () {
+            Route::get('/', [BisnisController::class, 'index'])->name('index');
+            Route::get('/create', [BisnisController::class, 'create'])->name('create');
+            Route::post('/', [BisnisController::class, 'store'])->name('store');
+            Route::get('/{id}', [BisnisController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [BisnisController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [BisnisController::class, 'update'])->name('update');
+            Route::delete('/{id}', [BisnisController::class, 'destroy'])->name('destroy');
+
+
+            Route::delete('/media/{id}', [BisnisController::class, 'destroyMedia'])
+                ->name('media.destroy');
+        });
 
         Route::prefix('point/tukar')->group(function () {
             Route::get('/', [TukarPointController::class, 'index'])->name('tukar-point.index');
@@ -83,8 +98,8 @@ Route::middleware('auth')->group(function () {
         });
 
         // =========================
-// DONATION CAMPAIGN (MASTER)
-// =========================
+        // DONATION CAMPAIGN (MASTER)
+        // =========================
 
         // List campaign
         Route::get(
