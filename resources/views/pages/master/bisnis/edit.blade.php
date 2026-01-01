@@ -17,10 +17,33 @@
            value="{{ old('nama', $bisnis->nama) }}"
            required>
 
-    <label>Kategori</label>
-    <input type="text" name="kategori"
-           class="form-control mb-2"
-           value="{{ old('kategori', $bisnis->kategori) }}">
+      <label>Kategori Bisnis</label>
+      <select name="kategori" class="form-control mb-2" required>
+          <option value="">-- Pilih Kategori Bisnis --</option>
+
+          @php
+              $kategoriBisnis = [
+                  'Kuliner',
+                  'Fashion',
+                  'Kerajinan',
+                  'Jasa',
+                  'Pertanian',
+                  'Perikanan',
+                  'Peternakan',
+                  'Perdagangan',
+                  'Industri Rumah Tangga',
+                  'Lainnya',
+              ];
+              $selectedKategori = old('kategori', $bisnis->kategori);
+          @endphp
+
+          @foreach ($kategoriBisnis as $kat)
+              <option value="{{ $kat }}" {{ $selectedKategori === $kat ? 'selected' : '' }}>
+                  {{ $kat }}
+              </option>
+          @endforeach
+      </select>
+
   
   
     <label>Alamat</label>

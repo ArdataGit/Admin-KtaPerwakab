@@ -10,8 +10,21 @@
     <label>Nama Bisnis</label>
     <input type="text" name="nama" class="form-control mb-2" required>
 
-    <label>Kategori</label>
-    <input type="text" name="kategori" class="form-control mb-2">
+    <label>Kategori Bisnis</label>
+    <select name="kategori" class="form-control mb-2" required>
+        <option value="">-- Pilih Kategori Bisnis --</option>
+        <option value="Kuliner">Kuliner</option>
+        <option value="Fashion">Fashion</option>
+        <option value="Kerajinan">Kerajinan</option>
+        <option value="Jasa">Jasa</option>
+        <option value="Pertanian">Pertanian</option>
+        <option value="Perikanan">Perikanan</option>
+        <option value="Peternakan">Peternakan</option>
+        <option value="Perdagangan">Perdagangan</option>
+        <option value="Industri Rumah Tangga">Industri Rumah Tangga</option>
+        <option value="Lainnya">Lainnya</option>
+    </select>
+
   
     <label>Alamat</label>
     <textarea name="alamat" class="form-control mb-2" rows="2"

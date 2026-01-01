@@ -44,9 +44,7 @@ class UmkmProductApiController extends Controller
 
         // 🏷 filter berdasarkan kategori UMKM
         if ($request->filled('category')) {
-            $query->whereHas('umkm', function ($q) use ($request) {
-                $q->where('category', $request->category);
-            });
+            $query->where('category', $request->category);
         }
 
         return response()->json([

@@ -174,7 +174,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/{id}', [DonationCampaignApiController::class, 'show']);
         });
     });
-    Route::post('/donations', [DonationApiController::class, 'store']);
     Route::get('/tripay/payment-methods', [TripayApiController::class, 'paymentMethods']);
 
     Route::prefix('marketplace')->group(function () {

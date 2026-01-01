@@ -15,6 +15,7 @@ class UmkmProduct extends Model
         'umkm_id',
         'product_name',
         'price',
+      	'category',
         'description',
         'youtube_link',
         'status',

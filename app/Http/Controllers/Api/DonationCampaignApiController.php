@@ -54,7 +54,7 @@ class DonationCampaignApiController extends Controller
      */
     public function show($id)
     {
-        $campaign = DonationCampaign::where('is_active', true)
+        $campaign = DonationCampaign::where('is_active', 1)
             ->findOrFail($id);
 
         return response()->json([

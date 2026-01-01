@@ -27,6 +27,10 @@ class BisnisApiController extends Controller
                 ->orWhere('alamat', 'like', "%{$search}%");
           });
       }
+    
+        if ($request->filled('category')) {
+        $query->where('kategori', $request->category);
+   		}
 
       $items = $query
           ->latest()

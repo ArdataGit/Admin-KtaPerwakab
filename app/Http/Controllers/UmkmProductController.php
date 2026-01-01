@@ -29,6 +29,7 @@ class UmkmProductController extends Controller
         $data = $request->validate([
             'product_name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'category'     => 'nullable|string|max:100',
             'description' => 'nullable|string',
             'youtube_link' => 'nullable|url',
             'photos' => 'required|array|min:1',
@@ -94,6 +95,7 @@ class UmkmProductController extends Controller
         $data = $request->validate([
             'product_name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
+            'category'     => 'nullable|string|max:100',
             'description' => 'nullable|string',
             'youtube_link' => 'nullable|url',
             'photos' => $photoRules,
@@ -113,6 +115,7 @@ class UmkmProductController extends Controller
         // Update hanya field yang bukan foto
         $product->update([
             'product_name' => $request->product_name,
+            'category' => $request->category,
             'price' => $request->price,
             'description' => $request->description,
             'youtube_link' => $request->youtube_link,

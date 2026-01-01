@@ -1,4 +1,16 @@
 @extends('layouts.app')
+@php
+    $categories = [
+        'Makanan',
+        'Minuman',
+        'Kerajinan',
+        'Fashion',
+        'Jasa',
+        'Pertanian',
+        'Perikanan',
+        'Lainnya',
+    ];
+@endphp
 
 @section('content')
 
@@ -46,6 +58,7 @@
                     <tr>
                         <th width="5%">#</th>
                         <th>Nama Produk</th>
+                      	<th>Kategori</th>
                         <th>Harga</th>
                         <th width="10%">Status</th>
                         <th width="12%">Foto</th>
@@ -58,6 +71,10 @@
                         <tr>
                             <td>{{ $products->firstItem() + $i }}</td>
                             <td>{{ $product->product_name }}</td>
+                            <td>
+                                {{ $product->category ?? '-' }}
+                            </td>
+
                             <td>
                                 @if ($product->price)
                                     Rp {{ number_format($product->price, 0, ',', '.') }}
@@ -161,6 +178,24 @@
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
+                                    <div class="form-group">
+                                        <label>Kategori <span class="text-danger">*</span></label>
+                                        <select name="category"
+                                                class="form-control @error('category') is-invalid @enderror"
+                                                required>
+                                            <option value="">-- Pilih Kategori --</option>
+                                            @foreach ($categories as $cat)
+                                                <option value="{{ $cat }}"
+                                                    {{ old('category', $product->category) === $cat ? 'selected' : '' }}>
+                                                    {{ $cat }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @error('category')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+
 
                                     <div class="form-group">
                                         <label>Harga <span class="text-danger">*</span></label>
@@ -281,6 +316,23 @@
                                            class="form-control @error('product_name') is-invalid @enderror"
                                            value="{{ old('product_name') }}" required>
                                     @error('product_name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="form-group">
+                                    <label>Kategori <span class="text-danger">*</span></label>
+                                    <select name="category"
+                                            class="form-control @error('category') is-invalid @enderror"
+                                            required>
+                                        <option value="">-- Pilih Kategori --</option>
+                                        @foreach ($categories as $cat)
+                                            <option value="{{ $cat }}"
+                                                {{ old('category') === $cat ? 'selected' : '' }}>
+                                                {{ $cat }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('category')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
