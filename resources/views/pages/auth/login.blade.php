@@ -8,77 +8,91 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>@yield('title') - Dashboard</title>
+    <title>Login - Dashboard</title>
 
-    <!-- Custom fonts for this template-->
+    <!-- Fonts -->
     <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Custom styles for this template-->
-    <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
-    @stack('styles')
+    <!-- Vite CSS -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .bg-gradient-green { background: linear-gradient(135deg, #3E9A3E 0%, #85C955 100%); }
+        .btn-gradient-green { background: linear-gradient(135deg, #3E9A3E 0%, #85C955 100%); }
+    </style>
 </head>
 
-<body class="bg-gradient-primary" id="page-top">
+<body class="bg-gradient-green min-h-screen flex items-center justify-center p-5">
+    <div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[600px]">
+        
+        <!-- Left Side - Logo & Branding -->
+        <div class="flex-1 bg-gradient-green p-10 md:p-16 flex flex-col items-center justify-center text-white relative overflow-hidden">
+            <!-- Decorative circles -->
+            <div class="absolute w-72 h-72 bg-white/10 rounded-full -top-24 -right-24"></div>
+            <div class="absolute w-48 h-48 bg-white/10 rounded-full -bottom-12 -left-12"></div>
+            
+            <div class="relative z-10 text-center mb-8">
+                <img src="{{ asset('img/logo.png') }}" 
+                     alt="Logo" 
+                     class="w-44 h-44 md:w-52 md:h-52 object-contain drop-shadow-lg mb-5 mx-auto"
+                     onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ccircle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%23fff%22/%3E%3Ctext x=%2250%22 y=%2260%22 font-size=%2240%22 text-anchor=%22middle%22 fill=%22%233E9A3E%22 font-weight=%22bold%22%3EL%3C/text%3E%3C/svg%3E'">
+                <h2 class="text-3xl md:text-4xl font-bold mb-2 drop-shadow-md">Perwakab</h2>
+                <p class="text-base md:text-lg font-light opacity-95">Dashboard Admin</p>
+            </div>
+        </div>
 
+        <!-- Right Side - Login Form -->
+        <div class="flex-1 p-10 md:p-16 flex flex-col justify-center">
+            <div class="mb-10">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Selamat Datang!</h1>
+                <p class="text-gray-600">Silakan login untuk melanjutkan ke dashboard</p>
+            </div>
 
-    <div class="container">
+            @if(session('error'))
+                <div class="flex items-center gap-3 p-4 mb-5 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
 
-        <!-- Outer Row -->
-        <div class="row justify-content-center">
-
-            <div class="col-xl-10 col-lg-12 col-md-9">
-
-                <div class="card o-hidden border-0 shadow-lg my-5">
-                    <div class="card-body p-0">
-                        <!-- Nested Row within Card Body -->
-                        <div class="row">
-                            <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
-                            <div class="col-lg-6">
-                                <div class="p-5">
-                                    <div class="text-center">
-                                        <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
-                                    </div>
-                                    @if(session('error'))
-                                        <div class="alert alert-danger">{{ session('error') }}</div>
-                                    @endif
-                                    <form class="user" method="POST" action="{{ route('login.post') }}">
-                                        @csrf
-                                        <div class="form-group">
-                                            <input type="email" name="email" class="form-control form-control-user"
-                                                id="exampleInputEmail" aria-describedby="emailHelp"
-                                                placeholder="Enter Email Address..." required>
-                                        </div>
-                                        <div class="form-group">
-                                            <input type="password" name="password"
-                                                class="form-control form-control-user" id="exampleInputPassword"
-                                                placeholder="Password" required>
-                                        </div>
-
-                                        <button type="submit" class="btn btn-primary btn-user btn-block">
-                                            Login
-                                        </button>
-                                    </form>
-
-                                    <hr>
-                                    <div class="text-center">
-                                        <a class="small" href="forgot-password.html">Forgot Password?</a>
-                                    </div>
-                                    <div class="text-center">
-                                        <a class="small" href="register.html">Create an Account!</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <form method="POST" action="{{ route('login.post') }}" class="space-y-6">
+                @csrf
+                
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                    <div class="relative">
+                        <i class="fas fa-envelope absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="email" 
+                               name="email" 
+                               id="email" 
+                               class="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#3E9A3E] focus:ring-4 focus:ring-[#3E9A3E]/10 transition-all placeholder:text-gray-300"
+                               placeholder="Masukkan email Anda" 
+                               required 
+                               autofocus>
                     </div>
                 </div>
 
-            </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <div class="relative">
+                        <i class="fas fa-lock absolute left-5 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        <input type="password" 
+                               name="password" 
+                               id="password" 
+                               class="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#3E9A3E] focus:ring-4 focus:ring-[#3E9A3E]/10 transition-all placeholder:text-gray-300"
+                               placeholder="Masukkan password Anda" 
+                               required>
+                    </div>
+                </div>
 
+                <button type="submit" 
+                        class="w-full py-4 btn-gradient-green text-white font-semibold rounded-xl shadow-lg shadow-[#3E9A3E]/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#3E9A3E]/40 active:translate-y-0 transition-all mt-2">
+                    <i class="fas fa-sign-in-alt mr-2"></i> Login
+                </button>
+            </form>
         </div>
-
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

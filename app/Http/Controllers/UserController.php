@@ -204,7 +204,16 @@ class UserController extends Controller
             $validated['expired_at'] = $this->hitungExpired($joinDate);
         }
 
-        User::create($validated);
+        $user = User::create($validated);
+
+        // Return JSON for AJAX requests
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User berhasil ditambahkan',
+                'user' => $user
+            ]);
+        }
 
         return redirect()->back()->with('success', 'User berhasil ditambahkan');
     }
@@ -283,6 +292,15 @@ class UserController extends Controller
         }
 
         $user->update($validated);
+
+        // Return JSON for AJAX requests
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User berhasil diperbarui',
+                'user' => $user->fresh()
+            ]);
+        }
 
         return redirect()->back()->with('success', 'User berhasil diperbarui');
     }

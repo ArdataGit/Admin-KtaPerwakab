@@ -25,16 +25,22 @@ use App\Http\Controllers\Api\DonationApiController;
 use App\Http\Controllers\Api\HomeBannerApiController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\BisnisApiController;
+use App\Http\Controllers\PointKategoriController;
 
 
 Route::post('/register', [AuthApiController::class, 'register']);
 Route::post('/login', [AuthApiController::class, 'login']);
 
 Route::post('/tripay/callback', [TripayCallbackController::class, 'handle']);
+
 // Forgot Password API (Public - tidak perlu auth)
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::post('/validate-reset-token', [ForgotPasswordController::class, 'validateToken']);
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
+
+// Point Kategoris API (Public - untuk dropdown di web)
+Route::get('/point-kategoris', [PointKategoriController::class, 'apiIndex']);
+Route::get('/user-points/{userId}', [UserPointController::class, 'apiHistoryByUser']);
 
 // routes/api.php
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {

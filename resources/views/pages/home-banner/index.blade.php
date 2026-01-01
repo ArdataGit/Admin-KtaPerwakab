@@ -1,274 +1,354 @@
 @extends('layouts.app')
 
+@section('title', 'Banner Home')
+
+@section('page-title', 'Banner Home')
+
 @section('content')
 
-<div class="d-flex justify-content-between mb-3">
-    <h4>Banner Home</h4>
-    <button class="btn btn-primary" data-toggle="modal" data-target="#modalCreateBanner">
-        Tambah Banner
-    </button>
-</div>
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Banner Home</h2>
+        <button onclick="showCreateModal()" 
+                class="px-5 py-2.5 bg-gradient-to-r from-[#3E9A3E] to-[#85C955] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all">
+            <i class="fas fa-plus mr-2"></i>Tambah Banner
+        </button>
+    </div>
 
-<div class="card shadow mb-4">
-    <div class="card-body table-responsive">
-
-        <table class="table table-bordered table-striped align-middle">
-            <thead>
-                <tr>
-                    <th width="5%">#</th>
-                    <th>Judul</th>
-                    <th>Subjudul</th>
-                    <th>Posisi</th>
-                    <th>Status</th>
-                    <th width="12%">Gambar</th>
-                    <th width="18%">Aksi</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @forelse ($banners as $i => $banner)
+    <!-- Table Card -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
-                        <td>{{ $banners->firstItem() + $i }}</td>
-
-                        <td>{{ $banner->title ?? '-' }}</td>
-                        <td>{{ $banner->subtitle ?? '-' }}</td>
-
-                        <td>{{ $banner->position }}</td>
-
-                        <td>
-                            @if ($banner->is_active)
-                                <span class="badge bg-success">Aktif</span>
-                            @else
-                                <span class="badge bg-secondary">Nonaktif</span>
-                            @endif
-                        </td>
-
-                        <td class="text-center">
-                            <img src="{{ $banner->image ? asset('storage/'.$banner->image) : asset('images/no-image.png') }}"
-                                 width="80"
-                                 class="rounded shadow-sm">
-                        </td>
-
-                        <td>
-                            <button class="btn btn-sm btn-warning"
-                                    data-toggle="modal"
-                                    data-target="#modalEditBanner{{ $banner->id }}">
-                                Edit
-                            </button>
-
-                            <form action="{{ route('home-banner.destroy', $banner->id) }}"
-                                  method="POST"
-                                  style="display:inline-block">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-danger"
-                                        onclick="return confirm('Hapus banner ini?')">
-                                    Hapus
-                                </button>
-                            </form>
-                        </td>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">#</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Judul</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Subjudul</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Posisi</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Gambar</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="7" class="text-center text-muted">
-                            Banner belum tersedia
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @forelse ($banners as $i => $banner)
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 text-sm text-gray-700">{{ $banners->firstItem() + $i }}</td>
+                            <td class="px-6 py-4 text-sm">
+                                <div class="font-medium text-gray-900">{{ $banner->title ?? '-' }}</div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-700">{{ $banner->subtitle ?? '-' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-700">{{ $banner->position }}</td>
+                            <td class="px-6 py-4 text-sm">
+                                @if ($banner->is_active)
+                                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Aktif</span>
+                                @else
+                                    <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">Nonaktif</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4">
+                                <img src="{{ $banner->image ? asset('storage/'.$banner->image) : asset('images/no-image.png') }}"
+                                     class="w-20 h-12 rounded-lg object-cover border border-gray-200 shadow-sm" alt="Banner">
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button onclick='showEditModal(@json($banner))' 
+                                            class="px-3 py-1.5 bg-yellow-500 text-white text-xs font-medium rounded-lg hover:bg-yellow-600 transition-colors">
+                                        <i class="fas fa-edit mr-1"></i>Edit
+                                    </button>
 
-        {{ $banners->links('pagination::bootstrap-4') }}
+                                    <button onclick="confirmDelete({{ $banner->id }})" 
+                                            class="px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors">
+                                        <i class="fas fa-trash mr-1"></i>Hapus
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                                <i class="fas fa-image text-4xl mb-2 text-gray-300"></i>
+                                <p>Tidak ada data banner</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
+        <!-- Pagination -->
+        <div class="px-6 py-4 border-t border-gray-200">
+            {{ $banners->links() }}
+        </div>
     </div>
-</div>
 
-{{-- ================= MODAL EDIT BANNER ================= --}}
-@foreach ($banners as $banner)
-<div class="modal fade" id="modalEditBanner{{ $banner->id }}" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-
-        <form action="{{ route('home-banner.update', $banner->id) }}"
-              method="POST"
-              enctype="multipart/form-data"
-              class="modal-content">
+    <!-- Hidden Forms for Delete -->
+    @foreach ($banners as $banner)
+        <form id="delete-form-{{ $banner->id }}" 
+              action="{{ route('home-banner.destroy', $banner->id) }}" 
+              method="POST" 
+              style="display: none;">
             @csrf
-            @method('PUT')
-
-            <div class="modal-header">
-                <h5 class="modal-title">Edit Banner</h5>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-
-            <div class="modal-body">
-
-                <div class="form-group">
-                    <label>Judul</label>
-                    <input type="text" name="title" class="form-control"
-                           value="{{ $banner->title }}">
-                </div>
-
-                <div class="form-group">
-                    <label>Subjudul</label>
-                    <input type="text" name="subtitle" class="form-control"
-                           value="{{ $banner->subtitle }}">
-                </div>
-
-                <div class="form-group">
-                    <label>Link</label>
-                    <input type="text" name="link" class="form-control"
-                           value="{{ $banner->link }}">
-                </div>
-
-                <div class="form-group">
-                    <label>Posisi</label>
-                    <input type="number" name="position" class="form-control"
-                           min="0" step="1"
-                           value="{{ $banner->position }}">
-                </div>
-
-                <div class="form-group">
-                    <label>Periode Tampil</label>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <input type="datetime-local"
-                                   name="start_at"
-                                   class="form-control"
-                                   value="{{ optional($banner->start_at)->format('Y-m-d\TH:i') }}">
-                        </div>
-                        <div class="col-md-6">
-                            <input type="datetime-local"
-                                   name="end_at"
-                                   class="form-control"
-                                   value="{{ optional($banner->end_at)->format('Y-m-d\TH:i') }}">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Gambar</label>
-                    <input type="file" name="image" class="form-control-file"
-                           onchange="this.nextElementSibling.src = window.URL.createObjectURL(this.files[0])">
-
-                    <img src="{{ asset('storage/'.$banner->image) }}"
-                         width="120"
-                         class="rounded shadow-sm mt-2">
-                </div>
-
-                <div class="form-group">
-                    <label>Status</label>
-                    <select name="is_active" class="form-control">
-                        <option value="1" {{ $banner->is_active ? 'selected' : '' }}>Aktif</option>
-                        <option value="0" {{ !$banner->is_active ? 'selected' : '' }}>Nonaktif</option>
-                    </select>
-                </div>
-
-            </div>
-
-            <div class="modal-footer">
-                <button type="button"
-                        class="btn btn-secondary"
-                        data-dismiss="modal">
-                    Batal
-                </button>
-                <button class="btn btn-warning">
-                    Update
-                </button>
-            </div>
-
+            @method('DELETE')
         </form>
-
-    </div>
-</div>
-@endforeach
-
-{{-- ================= MODAL CREATE BANNER ================= --}}
-<div class="modal fade" id="modalCreateBanner" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-
-        <form action="{{ route('home-banner.store') }}"
-              method="POST"
-              enctype="multipart/form-data"
-              class="modal-content">
-            @csrf
-
-            <div class="modal-header">
-                <h5 class="modal-title">Tambah Banner</h5>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-
-            <div class="modal-body">
-
-                <div class="form-group">
-                    <label>Judul</label>
-                    <input type="text" name="title" class="form-control">
-                </div>
-
-                <div class="form-group">
-                    <label>Subjudul</label>
-                    <input type="text" name="subtitle" class="form-control">
-                </div>
-
-                <div class="form-group">
-                    <label>Link (Opsional)</label>
-                    <input type="text" name="link" class="form-control"
-                           placeholder="https://">
-                </div>
-
-                <div class="form-group">
-                    <label>Posisi</label>
-                    <input type="number" name="position" class="form-control"
-                           value="0" min="0" step="1">
-                </div>
-
-                <div class="form-group">
-                    <label>Periode Tampil (Opsional)</label>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <input type="datetime-local" name="start_at" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <input type="datetime-local" name="end_at" class="form-control">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Gambar Banner</label>
-                    <input type="file" name="image"
-                           class="form-control-file"
-                           accept="image/*"
-                           required>
-
-                    <small class="text-muted">
-                        Rekomendasi ukuran: 1200x400 px
-                    </small>
-                </div>
-
-                <div class="form-group">
-                    <label>Status</label>
-                    <select name="is_active" class="form-control">
-                        <option value="1">Aktif</option>
-                        <option value="0">Nonaktif</option>
-                    </select>
-                </div>
-
-            </div>
-
-            <div class="modal-footer">
-                <button type="button"
-                        class="btn btn-secondary"
-                        data-dismiss="modal">
-                    Batal
-                </button>
-                <button class="btn btn-primary">
-                    Simpan
-                </button>
-            </div>
-
-        </form>
-
-    </div>
-</div>
+    @endforeach
 
 @endsection
+
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Show success/error messages
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session("success") }}',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    @endif
+
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '{{ session("error") }}',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    @endif
+
+    // Create Modal
+    function showCreateModal() {
+        Swal.fire({
+            title: 'Tambah Banner',
+            html: `
+                <form id="createForm" action="{{ route('home-banner.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="grid grid-cols-1 gap-4 text-left p-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Judul</label>
+                            <input type="text" name="title" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
+                                   placeholder="Judul banner">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Subjudul</label>
+                            <input type="text" name="subtitle" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
+                                   placeholder="Subjudul banner">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Link (Opsional)</label>
+                            <input type="text" name="link" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
+                                   placeholder="https://">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Posisi</label>
+                                <input type="number" name="position" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
+                                       value="0" min="0" step="1">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                <select name="is_active" 
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
+                                    <option value="1">Aktif</option>
+                                    <option value="0">Nonaktif</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Periode Tampil (Opsional)</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="datetime-local" name="start_at" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
+                                <input type="datetime-local" name="end_at" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Gambar Banner <span class="text-red-500">*</span></label>
+                            <input type="file" name="image" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" 
+                                   accept="image/*" required>
+                            <small class="text-gray-500 text-xs">Rekomendasi ukuran: 1200x400 px</small>
+                        </div>
+                    </div>
+                </form>
+            `,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-save mr-2"></i>Simpan',
+            cancelButtonText: '<i class="fas fa-times mr-2"></i>Batal',
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#6b7280',
+            width: '700px',
+            customClass: {
+                popup: 'swal-wide',
+                htmlContainer: 'swal-html-container'
+            },
+            preConfirm: () => {
+                const form = document.getElementById('createForm');
+                const image = form.querySelector('input[name="image"]').files[0];
+                
+                if (!image) {
+                    Swal.showValidationMessage('Gambar banner wajib diisi');
+                    return false;
+                }
+                
+                form.submit();
+            }
+        });
+    }
+
+    // Edit Modal
+    function showEditModal(banner) {
+        const startAt = banner.start_at ? new Date(banner.start_at).toISOString().slice(0, 16) : '';
+        const endAt = banner.end_at ? new Date(banner.end_at).toISOString().slice(0, 16) : '';
+        
+        Swal.fire({
+            title: 'Edit Banner',
+            html: `
+                <form id="editForm" action="/home-banner/${banner.id}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="grid grid-cols-1 gap-4 text-left p-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Judul</label>
+                            <input type="text" name="title" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
+                                   value="${banner.title || ''}">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Subjudul</label>
+                            <input type="text" name="subtitle" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
+                                   value="${banner.subtitle || ''}">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Link</label>
+                            <input type="text" name="link" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
+                                   value="${banner.link || ''}">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Posisi</label>
+                                <input type="number" name="position" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
+                                       value="${banner.position}" min="0" step="1">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                <select name="is_active" 
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">
+                                    <option value="1" ${banner.is_active ? 'selected' : ''}>Aktif</option>
+                                    <option value="0" ${!banner.is_active ? 'selected' : ''}>Nonaktif</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Periode Tampil</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="datetime-local" name="start_at" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                                       value="${startAt}">
+                                <input type="datetime-local" name="end_at" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm"
+                                       value="${endAt}">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Gambar Banner</label>
+                            <input type="file" name="image" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100" 
+                                   accept="image/*">
+                            <small class="text-gray-500 text-xs">Kosongkan jika tidak ingin mengubah gambar</small>
+                        </div>
+
+                        ${banner.image ? `
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Gambar Saat Ini</label>
+                            <img src="{{ asset('storage/') }}/${banner.image}" class="w-32 h-20 rounded-lg object-cover border-2 border-gray-200 shadow-sm">
+                        </div>
+                        ` : ''}
+                    </div>
+                </form>
+            `,
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-save mr-2"></i>Update',
+            cancelButtonText: '<i class="fas fa-times mr-2"></i>Batal',
+            confirmButtonColor: '#f59e0b',
+            cancelButtonColor: '#6b7280',
+            width: '700px',
+            customClass: {
+                popup: 'swal-wide',
+                htmlContainer: 'swal-html-container'
+            },
+            preConfirm: () => {
+                document.getElementById('editForm').submit();
+            }
+        });
+    }
+
+    // Delete Confirmation
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Hapus Banner?',
+            text: "Data yang dihapus tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: '<i class="fas fa-trash mr-2"></i>Ya, Hapus!',
+            cancelButtonText: '<i class="fas fa-times mr-2"></i>Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('delete-form-' + id).submit();
+            }
+        });
+    }
+</script>
+
+<style>
+    .swal-wide {
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    .swal-html-container {
+        max-height: 70vh;
+        overflow-y: auto;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .swal2-html-container::-webkit-scrollbar {
+        width: 8px;
+    }
+    .swal2-html-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    .swal2-html-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    .swal2-html-container::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
+@endpush

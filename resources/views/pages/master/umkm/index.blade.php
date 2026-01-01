@@ -1,286 +1,99 @@
 @extends('layouts.app')
 
+@section('title', 'Daftar UMKM')
+
+@section('page-title', 'Daftar UMKM')
+
 @section('content')
 
-    <div class="d-flex justify-content-between mb-3">
-        <h4>Daftar UMKM</h4>
-        <button class="btn btn-primary" data-toggle="modal" data-target="#modalCreateUmkm">
-            Tambah UMKM
-        </button>
-
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Daftar UMKM</h2>
+        <a href="{{ route('umkm.create') }}"
+           class="px-5 py-2.5 bg-gradient-to-r from-[#3E9A3E] to-[#85C955] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all">
+            <i class="fas fa-plus mr-2"></i>Tambah UMKM
+        </a>
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-body">
-
-            <table class="table table-bordered table-striped">
-                <thead>
+    <!-- Table Card -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
-                        <th width="5%">#</th>
-                        <th>Nama Pemilik</th>
-                        <th>Kategori</th>
-                        <th>Lokasi</th>
-                        <th width="12%">Logo</th>
-                        <th width="18%">Aksi</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">#</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Pemilik</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Kategori</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Lokasi</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Logo</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
-
-                <tbody>
+                <tbody class="divide-y divide-gray-200">
                     @forelse ($umkms as $i => $umkm)
-                        <tr>
-                            <td>{{ $umkms->firstItem() + $i }}</td>
-
-                            <td>
-                                <strong>{{ $umkm->user->name ?? '-' }}</strong>
-                                <br>
-                                <small class="text-muted">{{ $umkm->user->email ?? '' }}</small>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 text-sm text-gray-700">{{ $umkms->firstItem() + $i }}</td>
+                            <td class="px-6 py-4 text-sm">
+                                <div class="font-medium text-gray-900">{{ $umkm->user->name ?? '-' }}</div>
+                                <div class="text-xs text-gray-500 mt-1">{{ $umkm->user->email ?? '' }}</div>
                             </td>
-
-                            <td>{{ ucfirst($umkm->category) }}</td>
-
-                            <td>{{ $umkm->location ?? '-' }}</td>
-
-                            <td>
-                                @if ($umkm->logo)
-                                    <img src="{{ asset('storage/' . $umkm->logo) }}" width="60" class="rounded shadow-sm">
+                            <td class="px-6 py-4 text-sm">
+                                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                                    {{ ucfirst($umkm->category) }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-700">{{ $umkm->location ?? '-' }}</td>
+                            <td class="px-6 py-4 text-center">
+                                @if($umkm->logo)
+                                    <a href="{{ asset('storage/' . $umkm->logo) }}" target="_blank" class="inline-block">
+                                        <img src="{{ asset('storage/' . $umkm->logo) }}"
+                                             class="w-16 h-16 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow mx-auto"
+                                             alt="Logo">
+                                    </a>
                                 @else
-                                    <span class="text-muted">-</span>
+                                    <span class="text-gray-400 text-sm">-</span>
                                 @endif
                             </td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="{{ route('umkm.products.index', $umkm->id) }}"
+                                       class="px-3 py-1.5 bg-blue-500 text-white text-xs font-medium rounded-lg hover:bg-blue-600 transition-colors">
+                                        <i class="fas fa-box mr-1"></i>Produk
+                                    </a>
 
-                            <td>
-                                <a href="{{ route('umkm.products.index', $umkm->id) }}" class="btn btn-sm btn-info">
-                                    Produk
-                                </a>
+                                    <a href="{{ route('umkm.edit', $umkm->id) }}"
+                                       class="px-3 py-1.5 bg-yellow-500 text-white text-xs font-medium rounded-lg hover:bg-yellow-600 transition-colors">
+                                        <i class="fas fa-edit mr-1"></i>Edit
+                                    </a>
 
-                                <button class="btn btn-sm btn-warning" data-toggle="modal"
-                                    data-target="#modalEditUmkm{{ $umkm->id }}">
-                                    Edit
-                                </button>
-
-
-                                <form action="{{ route('umkm.destroy', $umkm->id) }}" method="POST"
-                                    style="display:inline-block">
-                                    @csrf
-                                    @method('DELETE')
-
-                                    <button onclick="return confirm('Hapus UMKM ini?')" class="btn btn-sm btn-danger">
-                                        Hapus
-                                    </button>
-                                </form>
+                                    <form action="{{ route('umkm.destroy', $umkm->id) }}" method="POST" class="inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                                onclick="return confirm('Hapus UMKM ini?')"
+                                                class="px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors">
+                                            <i class="fas fa-trash mr-1"></i>Hapus
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted">
-                                Data UMKM belum tersedia
+                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                <i class="fas fa-store text-4xl mb-2 text-gray-300"></i>
+                                <p>Belum ada data UMKM</p>
                             </td>
                         </tr>
-
                     @endforelse
                 </tbody>
             </table>
+        </div>
 
-            {{ $umkms->links('pagination::bootstrap-4') }}
-
+        <!-- Pagination -->
+        <div class="px-6 py-4 border-t border-gray-200">
+            {{ $umkms->links() }}
         </div>
     </div>
-
-    <!-- MODAL EDIT UMKM -->
-    @foreach ($umkms as $umkm)
-        <div class="modal fade" id="modalEditUmkm{{ $umkm->id }}" tabindex="-1" role="dialog"
-            aria-labelledby="modalEditUmkmLabel{{ $umkm->id }}" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-
-                <form action="{{ route('umkm.update', $umkm->id) }}" method="POST" enctype="multipart/form-data"
-                    class="modal-content">
-
-                    @csrf
-                    @method('PUT')
-
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="modalEditUmkmLabel{{ $umkm->id }}">
-                            Edit UMKM
-                        </h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Tutup">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-
-                    <div class="modal-body">
-
-                        {{-- Pilih User --}}
-                        <div class="form-group">
-                            <label>Pilih Pemilik UMKM</label>
-                            <select name="user_id" class="form-control" required>
-                                <option value="">-- Pilih User --</option>
-                                @foreach ($users as $user)
-                                    <option value="{{ $user->id }}" {{ old('user_id', $umkm->user_id) == $user->id ? 'selected' : '' }}>
-                                        {{ $user->name }} ({{ $user->email }})
-                                    </option>
-                                @endforeach
-                                {{-- Tampilkan user yang sedang dipilih meskipun sudah punya UMKM --}}
-                                @if($umkm->user && !$users->contains('id', $umkm->user_id))
-                                    <option value="{{ $umkm->user_id }}" selected>
-                                        {{ $umkm->user->name }} ({{ $umkm->user->email }})
-                                    </option>
-                                @endif
-                            </select>
-                            <small class="text-muted">Hanya user yang belum memiliki UMKM yang ditampilkan</small>
-                        </div>
-
-                        {{-- Kategori --}}
-                        <div class="form-group">
-                            <label>Kategori</label>
-                            <select name="category" class="form-control" required>
-                                <option value="">-- Pilih Kategori --</option>
-                                @php
-                                    $categories = [
-                                        'kuliner' => 'Kuliner',
-                                        'fashion' => 'Fashion',
-                                        'kerajinan' => 'Kerajinan',
-                                        'jasa' => 'Jasa',
-                                        'pertanian' => 'Pertanian',
-                                        'lainnya' => 'Lainnya',
-                                    ];
-                                @endphp
-
-                                @foreach ($categories as $key => $label)
-                                    <option value="{{ $key }}" {{ old('category', $umkm->category) === $key ? 'selected' : '' }}>
-                                        {{ $label }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        {{-- Lokasi --}}
-                        <div class="form-group">
-                            <label>Lokasi</label>
-                            <input type="text" name="location" class="form-control"
-                                value="{{ old('location', $umkm->location) }}">
-                        </div>
-
-                        {{-- WhatsApp --}}
-                        <div class="form-group">
-                            <label>WhatsApp</label>
-                            <input type="text" name="contact_wa" class="form-control"
-                                value="{{ old('contact_wa', $umkm->contact_wa) }}" placeholder="Contoh: 628123456789">
-                        </div>
-
-                        {{-- Logo --}}
-                        <div class="form-group">
-                            <label>Logo</label>
-                            <input type="file" name="logo" class="form-control-file">
-
-                            <small class="text-muted">
-                                Format didukung: JPG, JPEG, PNG
-                            </small>
-
-                            @if ($umkm->logo)
-                                <div class="mt-2">
-                                    <small class="text-muted d-block">Logo saat ini:</small>
-                                    <img src="{{ asset('storage/' . $umkm->logo) }}" width="60" class="rounded shadow-sm mt-1">
-                                </div>
-                            @endif
-                        </div>
-
-                        {{-- Deskripsi --}}
-                        <div class="form-group">
-                            <label>Deskripsi</label>
-                            <textarea name="description" class="form-control"
-                                rows="3">{{ old('description', $umkm->description) }}</textarea>
-                        </div>
-
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                            Batal
-                        </button>
-                        <button type="submit" class="btn btn-warning">
-                            Update
-                        </button>
-                    </div>
-
-                </form>
-            </div>
-        </div>
-    @endforeach
-
-    <!-- MODAL CREATE UMKM -->
-    <div class="modal fade" id="modalCreateUmkm" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <form action="{{ route('umkm.store') }}" method="POST" enctype="multipart/form-data" class="modal-content">
-                @csrf
-
-                <div class="modal-header">
-                    <h5 class="modal-title">Tambah UMKM</h5>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-
-                <div class="modal-body">
-
-                    <div class="form-group">
-                        <label>Pilih Pemilik UMKM</label>
-                        <select name="user_id" class="form-control" required>
-                            <option value="">-- Pilih User --</option>
-                            @foreach ($users as $user)
-                                <option value="{{ $user->id }}">
-                                    {{ $user->name }} ({{ $user->email }})
-                                </option>
-                            @endforeach
-                        </select>
-                        <small class="text-muted">Hanya user yang belum memiliki UMKM yang ditampilkan</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Kategori</label>
-                        <select name="category" class="form-control" required>
-                            <option value="">-- Pilih Kategori --</option>
-                            <option value="kuliner">Kuliner</option>
-                            <option value="fashion">Fashion</option>
-                            <option value="kerajinan">Kerajinan</option>
-                            <option value="jasa">Jasa</option>
-                            <option value="pertanian">Pertanian</option>
-                            <option value="lainnya">Lainnya</option>
-                        </select>
-                    </div>
-
-
-                    <div class="form-group">
-                        <label>Lokasi</label>
-                        <input type="text" name="location" class="form-control">
-                    </div>
-
-                    <div class="form-group">
-                        <label>WhatsApp</label>
-                        <input type="text" name="contact_wa" class="form-control">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Logo</label>
-                        <input type="file" name="logo" class="form-control-file">
-
-                        <small class="text-muted">
-                            Format didukung: JPG, JPEG, PNG
-                        </small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Deskripsi</label>
-                        <textarea name="description" class="form-control" rows="3"></textarea>
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                    <button class="btn btn-primary">Simpan</button>
-                </div>
-
-            </form>
-        </div>
-    </div>
-
 
 @endsection
