@@ -10,7 +10,7 @@ class HomeBanner extends Model
         'title',
         'subtitle',
         'image',
-        'link',
+        'description',
         'position',
         'is_active',
         'start_at',

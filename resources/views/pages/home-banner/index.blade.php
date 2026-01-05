@@ -143,10 +143,10 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Link (Opsional)</label>
-                            <input type="text" name="link" 
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                            <textarea name="description" rows="3"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
-                                   placeholder="https://">
+                                   placeholder="Deskripsi banner"></textarea>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
@@ -237,10 +237,9 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Link</label>
-                            <input type="text" name="link" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm" 
-                                   value="${banner.link || ''}">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
+                            <textarea name="description" rows="3"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm">${banner.description || ''}</textarea>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
