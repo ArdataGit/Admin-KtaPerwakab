@@ -1,220 +1,151 @@
 @extends('layouts.app')
+@php
+    $categories = [
+        'Makanan',
+        'Minuman',
+        'Kerajinan',
+        'Fashion',
+        'Jasa',
+        'Pertanian',
+        'Perikanan',
+        'Lainnya',
+    ];
+@endphp
+
+@section('title', 'Produk UMKM')
+
+@section('page-title', 'Produk UMKM')
 
 @section('content')
 
-    <div class="d-flex justify-content-between mb-3">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
         <div>
-            <h4>Produk UMKM</h4>
-            <small class="text-muted">{{ $umkm->umkm_name }}</small>
+            <h2 class="text-2xl font-bold text-gray-800">Produk UMKM</h2>
+            <p class="text-sm text-gray-600 mt-1">{{ $umkm->user->name ?? 'Pemilik tidak ditemukan' }}</p>
         </div>
-
-        <button class="btn btn-primary" data-toggle="modal" data-target="#modalCreateProduct">
-            Tambah Produk
-        </button>
+        <a href="{{ route('umkm.products.create', $umkm->id) }}"
+           class="px-5 py-2.5 bg-gradient-to-r from-[#3E9A3E] to-[#85C955] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all">
+            <i class="fas fa-plus mr-2"></i>Tambah Produk
+        </a>
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-body">
-
-            <table class="table table-bordered table-striped">
-                <thead>
+    <!-- Table Card -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
-                        <th width="5%">#</th>
-                        <th>Nama Produk</th>
-                        <th>Harga</th>
-                        <th width="12%">Foto</th>
-                        <th width="20%">Aksi</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">#</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Produk</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Kategori Produk</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Harga</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Foto</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
-
-                <tbody>
+                <tbody class="divide-y divide-gray-200">
                     @forelse ($products as $i => $product)
-                        <tr>
-                            <td>{{ $products->firstItem() + $i }}</td>
-
-                            <td>{{ $product->product_name }}</td>
-
-                            <td>
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 text-sm text-gray-700">{{ $products->firstItem() + $i }}</td>
+                            <td class="px-6 py-4 text-sm">
+                                <div class="font-medium text-gray-900">{{ $product->product_name }}</div>
+                                @if($product->description)
+                                    <div class="text-xs text-gray-500 mt-1">
+                                        {{ \Illuminate\Support\Str::limit($product->description, 50) }}
+                                    </div>
+                                @endif
+                            </td><td class="px-6 py-4 text-sm">
+                                <div class="font-medium text-gray-900">{{ $product->category }}</div>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-700">
                                 @if ($product->price)
                                     Rp {{ number_format($product->price, 0, ',', '.') }}
                                 @else
-                                    <span class="text-muted">-</span>
+                                    <span class="text-gray-400">-</span>
                                 @endif
                             </td>
-
-                            <td>
-                                @if ($product->photos->count())
-                                    <img src="{{ asset('storage/' . $product->photos->first()->file_path) }}" width="60"
-                                        class="rounded shadow-sm">
+                            <td class="px-6 py-4 text-center">
+                                @if($product->status === 'approved')
+                                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Disetujui</span>
+                                @elseif($product->status === 'pending')
+                                    <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">Pending</span>
                                 @else
-                                    <span class="text-muted">-</span>
+                                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Ditolak</span>
                                 @endif
                             </td>
+                            <td class="px-6 py-4 text-center">
+                                @if ($product->photos->count())
+                                    <a href="{{ asset('storage/' . $product->photos->first()->file_path) }}" target="_blank" class="inline-block">
+                                        <img src="{{ asset('storage/' . $product->photos->first()->file_path) }}"
+                                             class="w-16 h-16 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow mx-auto"
+                                             alt="Product photo">
+                                    </a>
+                                @else
+                                    <span class="text-gray-400 text-sm">-</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex items-center justify-center gap-2 flex-wrap">
+                                    {{-- Tombol Approve/Reject (hanya untuk pending) --}}
+                                    @if($product->status === 'pending')
+                                        <form action="{{ route('umkm.products.approve', [$umkm->id, $product->id]) }}" 
+                                              method="POST" class="inline-block">
+                                            @csrf
+                                            <button type="submit" 
+                                                    onclick="return confirm('Setujui produk ini?')"
+                                                    class="px-3 py-1.5 bg-green-500 text-white text-xs font-medium rounded-lg hover:bg-green-600 transition-colors">
+                                                <i class="fas fa-check mr-1"></i>Setujui
+                                            </button>
+                                        </form>
 
-                            <td>
-                                <button class="btn btn-sm btn-warning" data-toggle="modal"
-                                    data-target="#modalEditProduct{{ $product->id }}">
-                                    Edit
-                                </button>
+                                        <form action="{{ route('umkm.products.reject', [$umkm->id, $product->id]) }}" 
+                                              method="POST" class="inline-block">
+                                            @csrf
+                                            <button type="submit" 
+                                                    onclick="return confirm('Tolak produk ini?')"
+                                                    class="px-3 py-1.5 bg-orange-500 text-white text-xs font-medium rounded-lg hover:bg-orange-600 transition-colors">
+                                                <i class="fas fa-times mr-1"></i>Tolak
+                                            </button>
+                                        </form>
+                                    @endif
 
-                                <form action="{{ route('umkm.products.destroy', [$umkm->id, $product->id]) }}" method="POST"
-                                    style="display:inline-block">
-                                    @csrf
-                                    @method('DELETE')
+                                    {{-- Tombol Edit --}}
+                                    <a href="{{ route('umkm.products.edit', [$umkm->id, $product->id]) }}"
+                                       class="px-3 py-1.5 bg-yellow-500 text-white text-xs font-medium rounded-lg hover:bg-yellow-600 transition-colors">
+                                        <i class="fas fa-edit mr-1"></i>Edit
+                                    </a>
 
-                                    <button onclick="return confirm('Hapus produk ini?')" class="btn btn-sm btn-danger">
-                                        Hapus
-                                    </button>
-                                </form>
+                                    {{-- Tombol Hapus --}}
+                                    <form action="{{ route('umkm.products.destroy', [$umkm->id, $product->id]) }}" 
+                                          method="POST" class="inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                                onclick="return confirm('Hapus produk ini?')"
+                                                class="px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors">
+                                            <i class="fas fa-trash mr-1"></i>Hapus
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
-
-
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center text-muted">
-                                Produk belum tersedia
+                            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                                <i class="fas fa-box-open text-4xl mb-2 text-gray-300"></i>
+                                <p>Belum ada produk</p>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
-            @foreach ($products as $product)
-                <div class="modal fade" id="modalEditProduct{{ $product->id }}" tabindex="-1">
-                    <div class="modal-dialog modal-lg">
-                        <form action="{{ route('umkm.products.update', [$umkm->id, $product->id]) }}" method="POST"
-                            enctype="multipart/form-data" class="modal-content">
-                            @csrf
-                            @method('PUT')
+        </div>
 
-                            <div class="modal-header">
-                                <h5 class="modal-title">Edit Produk</h5>
-                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                            </div>
-
-                            <div class="modal-body">
-
-                                <div class="form-group">
-                                    <label>Nama Produk</label>
-                                    <input type="text" name="product_name" class="form-control"
-                                        value="{{ $product->product_name }}" required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Harga</label>
-                                    <input type="number" name="price" class="form-control" value="{{ $product->price }}">
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Link YouTube</label>
-                                    <input type="url" name="youtube_link" class="form-control"
-                                        value="{{ $product->youtube_link }}">
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Deskripsi</label>
-                                    <textarea name="description" class="form-control"
-                                        rows="3">{{ $product->description }}</textarea>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Tambah Foto Baru</label>
-                                    <input type="file" name="photos[]" multiple class="form-control-file">
-                                </div>
-
-                                @if ($product->photos->count())
-                                    <label>Foto Produk</label>
-                                    <div class="row">
-                                        @foreach ($product->photos as $photo)
-                                            <div class="col-4 mb-2 text-center">
-                                                <img src="{{ asset('storage/' . $photo->file_path) }}" class="img-fluid rounded mb-1"
-                                                    style="max-height:120px;object-fit:cover">
-                                                <form action="{{ route('umkm.product-photos.destroy', $photo->id) }}" method="POST"
-                                                    onsubmit="return confirm('Hapus foto ini?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button class="btn btn-sm btn-danger btn-block">
-                                                        Hapus
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @endif
-
-                            </div>
-
-                            <div class="modal-footer">
-                                <button class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                                <button class="btn btn-warning">Update</button>
-                            </div>
-
-                        </form>
-                    </div>
-                </div>
-            @endforeach
-
-            <!-- MODAL CREATE PRODUK -->
-            <div class="modal fade" id="modalCreateProduct" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-lg" role="document">
-
-                    <form action="{{ route('umkm.products.store', $umkm->id) }}" method="POST" enctype="multipart/form-data"
-                        class="modal-content">
-
-                        @csrf
-
-                        <div class="modal-header">
-                            <h5 class="modal-title">Tambah Produk</h5>
-                            <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        </div>
-
-                        <div class="modal-body">
-
-                            <div class="form-group">
-                                <label>Nama Produk</label>
-                                <input type="text" name="product_name" class="form-control" required>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Harga</label>
-                                <input type="number" name="price" class="form-control" placeholder="Contoh: 25000">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Link YouTube</label>
-                                <input type="url" name="youtube_link" class="form-control"
-                                    placeholder="https://youtube.com/...">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Deskripsi</label>
-                                <textarea name="description" class="form-control" rows="3"></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Foto Produk</label>
-                                <input type="file" name="photos[]" class="form-control-file" multiple>
-                                <small class="text-muted">Bisa upload lebih dari satu foto</small>
-                            </div>
-
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                                Batal
-                            </button>
-                            <button class="btn btn-primary">
-                                Simpan
-                            </button>
-                        </div>
-
-                    </form>
-                </div>
-            </div>
-
-
-            {{ $products->links('pagination::bootstrap-4') }}
-
+        <!-- Pagination -->
+        <div class="px-6 py-4 border-t border-gray-200">
+            {{ $products->links() }}
         </div>
     </div>
 

@@ -10,9 +10,21 @@ use Illuminate\Support\Facades\Storage;
 
 class PublikasiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $publikasi = Publikasi::latest()->paginate(10);
+        $query = Publikasi::query();
+
+        // Search functionality
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', '%' . $search . '%')
+                  ->orWhere('creator', 'like', '%' . $search . '%')
+                  ->orWhere('description', 'like', '%' . $search . '%');
+            });
+        }
+
+        $publikasi = $query->latest()->paginate(10)->withQueryString();
         return view('pages.master.publikasi.index', compact('publikasi'));
     }
 
@@ -119,5 +131,22 @@ class PublikasiController extends Controller
         $data->delete();
 
         return redirect()->back()->with('success', 'Publikasi dihapus');
+    }
+
+    public function deletePhoto($photoId)
+    {
+        $photo = PublikasiPhoto::findOrFail($photoId);
+        Storage::disk('public')->delete($photo->file_path);
+        $photo->delete();
+
+        return response()->json(['success' => true, 'message' => 'Foto berhasil dihapus']);
+    }
+
+    public function deleteVideo($videoId)
+    {
+        $video = PublikasiVideo::findOrFail($videoId);
+        $video->delete();
+
+        return response()->json(['success' => true, 'message' => 'Video berhasil dihapus']);
     }
 }

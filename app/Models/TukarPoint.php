@@ -12,6 +12,14 @@ class TukarPoint extends Model
         'point',
         'tanggal',
         'keterangan',
+        'status',
+        'approved_by',
+        'approved_at',
+    ];
+  
+    protected $casts = [
+        'tanggal' => 'date',
+        'approved_at' => 'datetime',
     ];
 
     public function user()
@@ -22,5 +30,9 @@ class TukarPoint extends Model
     public function masterPenukaran()
     {
         return $this->belongsTo(MasterPenukaranPoin::class, 'master_penukaran_poin_id');
+    }
+    public function approver()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 }

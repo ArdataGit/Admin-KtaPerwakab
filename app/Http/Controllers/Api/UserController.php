@@ -6,15 +6,22 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;use Illuminate\Support\Facades\Log;
+use App\Models\UserFamilyMember;
 
 class UserController extends Controller
 {
     /**
      * Update profile (tanpa foto)
      */
-    public function update(Request $request)
-    {
-        $user = $request->user();
+    
+public function update(Request $request)
+{
+    $user = $request->user();
+
+    DB::beginTransaction();
+
+    try {
 
         /*
         |--------------------------------------------------------------------------
@@ -31,6 +38,15 @@ class UserController extends Controller
             'birth_date' => 'nullable|date',
 
             'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+
+            // FAMILY VALIDATION
+            'family_members' => 'nullable|array',
+            'family_members.*.id' => 'nullable|exists:user_family_members,id',
+            'family_members.*.relationship' => 'required_with:family_members|string|max:100',
+            'family_members.*.age' => 'nullable|integer|min:0|max:120',
+            'family_members.*.name_ktp' => 'required_with:family_members|string|max:255',
+            'family_members.*.nickname' => 'nullable|string|max:255',
+            'family_members.*.address' => 'nullable|string|max:500',
         ]);
 
         /*
@@ -51,12 +67,10 @@ class UserController extends Controller
         */
         if ($request->hasFile('profile_photo')) {
 
-            // delete old photo
             if ($user->profile_photo) {
                 Storage::disk('public')->delete('profile_photos/' . $user->profile_photo);
             }
 
-            // store new photo
             $filename = uniqid('profile_', true) . '.' . $request->file('profile_photo')->extension();
 
             $request->file('profile_photo')->storeAs(
@@ -70,23 +84,32 @@ class UserController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | UPDATE USER
+        | UPDATE USER DATA
         |--------------------------------------------------------------------------
         */
         $user->update($validated);
 
-        /*
-        |--------------------------------------------------------------------------
-        | RESPONSE
-        |--------------------------------------------------------------------------
-        */
+        
+
+        DB::commit();
+
         return response()->json([
             'success' => true,
             'message' => 'Profil berhasil diperbarui',
-            'data' => $user->fresh(),
+            'data' => $user->fresh()->load('familyMembers'),
         ]);
-    }
 
+    } catch (\Throwable $e) {
+
+        DB::rollBack();
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Terjadi kesalahan',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
 
 
     /**
@@ -125,6 +148,142 @@ class UserController extends Controller
             'data' => $user->fresh(),
         ]);
     }
+  public function deleteFamilyMember(Request $request, $id)
+{
+    Log::info('DELETE FAMILY HIT', [
+        'route_id' => $id,
+        'auth_user' => $request->user(),
+        'token' => $request->bearerToken(),
+        'full_url' => $request->fullUrl(),
+        'method' => $request->method(),
+    ]);
 
+    try {
+
+        $user = $request->user();
+
+        if (!$user) {
+            Log::warning('DELETE FAMILY - USER NOT AUTHENTICATED');
+            return response()->json([
+                'success' => false,
+                'message' => 'User tidak terautentikasi',
+            ], 401);
+        }
+
+        $member = UserFamilyMember::where('id', $id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$member) {
+            Log::warning('DELETE FAMILY - MEMBER NOT FOUND', [
+                'requested_id' => $id,
+                'user_id' => $user->id,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Data keluarga tidak ditemukan',
+            ], 404);
+        }
+
+        $member->delete();
+
+        Log::info('DELETE FAMILY SUCCESS', [
+            'deleted_id' => $id,
+            'user_id' => $user->id,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Anggota keluarga berhasil dihapus',
+        ]);
+
+    } catch (\Throwable $e) {
+
+        Log::error('DELETE FAMILY ERROR', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Terjadi kesalahan',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+  
+  /**
+ * Store new family member
+ */
+public function storeFamilyMember(Request $request)
+{
+    $user = $request->user();
+
+    DB::beginTransaction();
+
+    try {
+
+        $validated = $request->validate([
+            'relationship' => 'required|string|max:100',
+            'birth_date'   => 'nullable|date',
+            'name_ktp'     => 'required|string|max:255',
+            'nickname'     => 'nullable|string|max:255',
+            'address'      => 'nullable|string|max:500',
+        ]);
+
+        // Normalisasi empty string jadi null
+        foreach (['birth_date', 'nickname', 'address'] as $field) {
+            if (array_key_exists($field, $validated) && $validated[$field] === '') {
+                $validated[$field] = null;
+            }
+        }
+
+        $member = $user->familyMembers()->create($validated);
+
+        DB::commit();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Anggota keluarga berhasil ditambahkan',
+            'data'    => $member,
+        ], 201);
+
+    } catch (\Throwable $e) {
+
+        DB::rollBack();
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Terjadi kesalahan',
+            'error'   => $e->getMessage(),
+        ], 500);
+    }
+}
+  
+  public function updateFamilyMember(Request $request, $id)
+{
+    $user = $request->user();
+
+    $member = UserFamilyMember::where('id', $id)
+        ->where('user_id', $user->id)
+        ->firstOrFail();
+
+    $validated = $request->validate([
+        'relationship' => 'required|string|max:100',
+        'birth_date'   => 'nullable|date',
+        'name_ktp'     => 'required|string|max:255',
+        'nickname'     => 'nullable|string|max:255',
+        'address'      => 'nullable|string|max:500',
+    ]);
+
+    $member->update($validated);
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Anggota keluarga berhasil diperbarui',
+        'data'    => $member,
+    ]);
+}
 
 }

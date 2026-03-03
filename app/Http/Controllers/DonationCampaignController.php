@@ -19,6 +19,14 @@ class DonationCampaignController extends Controller
     }
 
     /**
+     * Show Create Form
+     */
+    public function create()
+    {
+        return view('pages.master.donation-campaign.create');
+    }
+
+    /**
      * Store Campaign (Create via Modal)
      */
     public function store(Request $request)
@@ -45,6 +53,16 @@ class DonationCampaignController extends Controller
         return redirect()
             ->route('master.donation-campaign.index')
             ->with('success', 'Campaign donasi berhasil dibuat');
+    }
+
+    /**
+     * Show Edit Form
+     */
+    public function edit(DonationCampaign $donationCampaign)
+    {
+        return view('pages.master.donation-campaign.edit', [
+            'data' => $donationCampaign
+        ]);
     }
 
     /**

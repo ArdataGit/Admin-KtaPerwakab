@@ -50,32 +50,23 @@ class TukarPointController extends Controller
         $user = User::findOrFail($request->user_id);
         $produk = MasterPenukaranPoin::findOrFail($request->master_penukaran_poin_id);
 
-        $poinDibutuhkan = $produk->jumlah_poin;
-
-        // CEK SALDO DARI users.point
-        if ($user->point < $poinDibutuhkan) {
+        if ($user->point < $produk->jumlah_poin) {
             return back()->with(
                 'error',
                 'Poin user tidak mencukupi. Saldo tersedia: ' . $user->point . ' poin'
             );
         }
 
-        DB::transaction(function () use ($user, $produk, $request, $poinDibutuhkan) {
+        TukarPoint::create([
+            'user_id' => $user->id,
+            'master_penukaran_poin_id' => $produk->id,
+            'point' => -$produk->jumlah_poin,
+            'tanggal' => $request->tanggal,
+            'keterangan' => 'Request tukar poin dengan ' . $produk->produk,
+            'status' => 'pending',
+        ]);
 
-            // 1. Kurangi saldo user
-            $user->decrement('point', $poinDibutuhkan);
-
-            // 2. Catat histori penukaran
-            TukarPoint::create([
-                'user_id' => $user->id,
-                'master_penukaran_poin_id' => $produk->id,
-                'point' => -$poinDibutuhkan,
-                'tanggal' => $request->tanggal,
-                'keterangan' => 'Tukar poin dengan ' . $produk->produk,
-            ]);
-        });
-
-        return back()->with('success', 'Penukaran poin berhasil');
+        return back()->with('success', 'Request penukaran dikirim. Menunggu approval.');
     }
 
 
@@ -181,6 +172,50 @@ class TukarPointController extends Controller
             ],
             'data' => $data,
         ]);
+    }
+  
+    public function approve(TukarPoint $tukarPoint)
+    {
+        if ($tukarPoint->status !== 'pending') {
+            return back()->with('error', 'Request sudah diproses.');
+        }
+
+        $user = User::findOrFail($tukarPoint->user_id);
+        $poin = abs($tukarPoint->point);
+
+        if ($user->point < $poin) {
+            return back()->with('error', 'Saldo user sudah tidak mencukupi.');
+        }
+
+        DB::transaction(function () use ($tukarPoint, $user, $poin) {
+
+            // Potong poin
+            $user->decrement('point', $poin);
+
+            // Update status
+            $tukarPoint->update([
+                'status' => 'approved',
+                'approved_by' => auth()->id(),
+                'approved_at' => now(),
+            ]);
+        });
+
+        return back()->with('success', 'Request berhasil disetujui.');
+    }
+  
+  	public function reject(TukarPoint $tukarPoint)
+    {
+        if ($tukarPoint->status !== 'pending') {
+            return back()->with('error', 'Request sudah diproses.');
+        }
+
+        $tukarPoint->update([
+            'status' => 'rejected',
+            'approved_by' => auth()->id(),
+            'approved_at' => now(),
+        ]);
+
+        return back()->with('success', 'Request ditolak.');
     }
         
 }

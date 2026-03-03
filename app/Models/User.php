@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -17,13 +18,17 @@ class User extends Authenticatable
         'name',
         'email',
         'phone',
+      	'username',
         'gender',
         'birth_date',
         'age',
         'address',
         'city',
+      	'kecamatan',
+      	'kelurahan',
         'occupation',
         'join_date',
+      'member_type',
         'profile_photo',
         'status',
         'role',
@@ -42,12 +47,18 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'birth_date' => 'date',
+            
+            'birth_date' => 'date:Y-m-d',
             'join_date' => 'date',
             'expired_at' => 'date',
             'age' => 'integer',
             'point' => 'integer',
         ];
+    }
+  
+  	public function familyMembers()
+    {
+        return $this->hasMany(UserFamilyMember::class);
     }
 
     /**
@@ -56,5 +67,13 @@ class User extends Authenticatable
     public function userPoints(): HasMany
     {
         return $this->hasMany(UserPoint::class, 'id_user');
+    }
+
+    /**
+     * Relasi: User punya satu UMKM.
+     */
+    public function umkm(): HasOne
+    {
+        return $this->hasOne(Umkm::class);
     }
 }
