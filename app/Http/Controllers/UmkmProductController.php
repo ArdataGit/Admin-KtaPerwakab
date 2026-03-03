@@ -10,6 +10,18 @@ use Illuminate\Http\Request;
 
 class UmkmProductController extends Controller
 {
+    /**
+     * Tampilkan semua produk dari semua UMKM (untuk admin)
+     */
+    public function indexAll()
+    {
+        $products = UmkmProduct::with(['umkm.user', 'photos'])
+            ->latest()
+            ->paginate(10);
+        
+        return view('pages.master.umkm-product.index-all', compact('products'));
+    }
+
     public function index(Umkm $umkm)
     {
         $umkm->load('user'); // Eager load relasi user
@@ -21,7 +33,7 @@ class UmkmProductController extends Controller
 
     public function create(Umkm $umkm)
     {
-        return view('admin.umkm-product.create', compact('umkm'));
+        return view('pages.master.umkm-product.create', compact('umkm'));
     }
 
     public function store(Request $request, Umkm $umkm)
@@ -69,7 +81,7 @@ class UmkmProductController extends Controller
 
     public function edit(Umkm $umkm, UmkmProduct $product)
     {
-        return view('admin.umkm-product.edit', compact('umkm', 'product'));
+        return view('pages.master.umkm-product.edit', compact('umkm', 'product'));
     }
 
     public function update(Request $request, Umkm $umkm, UmkmProduct $product)

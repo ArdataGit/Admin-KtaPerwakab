@@ -167,6 +167,36 @@ class UserPointController extends Controller
 
     //API
 
+    /**
+     * Store single user point (untuk modal Tambah Kegiatan)
+     */
+    public function apiStore(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => ['required', 'exists:users,id'],
+            'point_kategori_id' => ['required', 'exists:point_kategori,id'],
+            'point' => ['required', 'integer'],
+        ]);
+
+        $kategori = PointKategori::findOrFail($validated['point_kategori_id']);
+        
+        $userPoint = UserPoint::create([
+            'id_category' => $validated['point_kategori_id'],
+            'id_user' => $validated['user_id'],
+            'created_by' => auth()->id() ?? 1,
+        ]);
+
+        // Update total point user
+        $user = User::find($validated['user_id']);
+        $user->increment('point', $kategori->point);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Point berhasil ditambahkan',
+            'data' => $userPoint->load(['pointKategori', 'user', 'createdBy']),
+        ]);
+    }
+
     public function apiHistoryByUser(Request $request, $userId)
     {
         $user = User::find($userId);
@@ -203,15 +233,18 @@ class UserPointController extends Controller
             $data = $query->get();
         }
 
-        return response()->json([
-            'success' => true,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'saldo_point' => $user->point,
-            ],
-            'data' => $data,
-        ]);
+        // Format data untuk response
+        $formattedData = $data->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'kategori_name' => $item->pointKategori->name ?? 'N/A',
+                'point' => $item->pointKategori->point ?? 0,
+                'created_at' => $item->created_at,
+                'added_by' => $item->createdBy->name ?? 'Admin',
+            ];
+        });
+
+        return response()->json($formattedData);
     }
 
 }

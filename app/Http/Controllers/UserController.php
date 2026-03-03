@@ -31,6 +31,7 @@ class UserController extends Controller
      */
     public function index()
     {
+      
         $users = User::orderBy('id', 'desc')->paginate(10);
 
         $users->transform(function ($user) {
@@ -123,6 +124,11 @@ class UserController extends Controller
         if ($request->filled('tahun_join')) {
             $query->whereYear('join_date', $request->tahun_join);
         }
+        $sort = $request->get('sort', 'desc');
+
+        if (!in_array($sort, ['asc', 'desc'])) {
+            $sort = 'desc';
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -130,7 +136,7 @@ class UserController extends Controller
         |--------------------------------------------------------------------------
         */
         $users = $query
-            ->orderByDesc('id')
+            ->orderBy('id', $sort)
             ->paginate(10)
             ->appends($request->query());
 
@@ -159,7 +165,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
+            'email' => 'nullable|email|unique:users,email',
             'phone' => 'nullable|string|max:255',
             'gender' => 'nullable|string|max:50',
             'birth_date' => 'nullable|date',
@@ -204,7 +210,16 @@ class UserController extends Controller
             $validated['expired_at'] = $this->hitungExpired($joinDate);
         }
 
-        User::create($validated);
+        $user = User::create($validated);
+
+        // Return JSON for AJAX requests
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User berhasil ditambahkan',
+                'user' => $user
+            ]);
+        }
 
         return redirect()->back()->with('success', 'User berhasil ditambahkan');
     }
@@ -219,7 +234,7 @@ class UserController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
-            'email' => ['sometimes', 'email', Rule::unique('users')->ignore($user->id)],
+            'email' => ['nullable', 'email', Rule::unique('users')->ignore($user->id)],
             'phone' => 'nullable|string|max:255',
             'gender' => 'nullable|string|max:50',
             'birth_date' => 'nullable|date',
@@ -230,6 +245,7 @@ class UserController extends Controller
             'status' => 'sometimes|string|in:aktif,nonaktif',
             'role' => 'sometimes|in:superadmin,admin,pengurus,anggota,bendahara,publik',
             'password' => 'nullable|string|min:6',
+            'kta_id' => 'nullable|string|max:50|unique:users,kta_id,' . $user->id,
             'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
@@ -283,6 +299,15 @@ class UserController extends Controller
         }
 
         $user->update($validated);
+
+        // Return JSON for AJAX requests
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'User berhasil diperbarui',
+                'user' => $user->fresh()
+            ]);
+        }
 
         return redirect()->back()->with('success', 'User berhasil diperbarui');
     }

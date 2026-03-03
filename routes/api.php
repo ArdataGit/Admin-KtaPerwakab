@@ -11,6 +11,8 @@ use App\Http\Controllers\MasterPenukaranPoinController;
 use App\Http\Controllers\TukarPointController;
 use App\Http\Controllers\UserPointController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Api\OrganizationHistoryController;
+use App\Http\Controllers\Api\UserTukarPointController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthApiController;
@@ -25,16 +27,30 @@ use App\Http\Controllers\Api\DonationApiController;
 use App\Http\Controllers\Api\HomeBannerApiController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\BisnisApiController;
+use App\Http\Controllers\PointKategoriController;
+use App\Http\Controllers\Api\RegionController;
 
+Route::prefix('regions')->group(function () {
+    Route::get('/provinces', [RegionController::class, 'provinces']);
+    Route::get('/cities', [RegionController::class, 'cities']);
+    Route::get('/districts', [RegionController::class, 'districts']);
+    Route::get('/villages', [RegionController::class, 'villages']);
+});
 
 Route::post('/register', [AuthApiController::class, 'register']);
 Route::post('/login', [AuthApiController::class, 'login']);
 
+
 Route::post('/tripay/callback', [TripayCallbackController::class, 'handle']);
+
 // Forgot Password API (Public - tidak perlu auth)
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::post('/validate-reset-token', [ForgotPasswordController::class, 'validateToken']);
 Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
+
+// Point Kategoris API (Public - untuk dropdown di web)
+Route::get('/point-kategoris', [PointKategoriController::class, 'apiIndex']);
+Route::get('/user-points/{userId}', [UserPointController::class, 'apiHistoryByUser']);
 
 // routes/api.php
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
@@ -52,17 +68,35 @@ Route::middleware('auth:sanctum')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('/me', function (Request $request) {
+        $user = $request->user()->load('familyMembers');
+
         return response()->json([
             'success' => true,
-            'data' => $request->user()
+            'data' => $user
         ]);
     });
 
+    Route::get('/kta-templates/active', 
+        [\App\Http\Controllers\KtaTemplateController::class, 'getActive']
+    );
+  
+    Route::post('/point/redeem', 
+        [UserTukarPointController::class, 'requestRedeem']);
+
+    Route::get('/point/history', 
+        [UserTukarPointController::class, 'history']);
+  
+    Route::get('/organization/history', [OrganizationHistoryController::class, 'show']);
+
+  
     Route::post('/logout', [AuthApiController::class, 'logout']);
   
   	Route::get('/home/banners', [HomeBannerApiController::class, 'index']);
   
   
+    Route::post('/family-members', [UserController::class, 'storeFamilyMember']);
+    Route::put('/family-members/{id}', [UserController::class, 'updateFamilyMember']);
+    Route::delete('/family-members/{id}', [UserController::class, 'deleteFamilyMember']);
     /*
     |--------------------------------------------------------------------------
     | Bisnis
@@ -239,5 +273,7 @@ Route::middleware('auth:sanctum')->group(function () {
         '/users/{userId}/point-history',
         [UserPointController::class, 'apiHistoryByUser']
     );
+
+    Route::get('/donations/check-limit', [DonationApiController::class, 'checkDailyLimit']);
 
 Route::middleware('auth:sanctum')->post('/logout', [AuthApiController::class, 'logout']);

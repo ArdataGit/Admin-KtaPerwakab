@@ -81,4 +81,14 @@ class PointKategoriController extends Controller
 
         return back()->with('success', 'Point kategori deleted successfully');
     }
+
+    /**
+     * API: Get all point kategoris
+     */
+    public function apiIndex()
+    {
+        $kategoris = PointKategori::orderBy('name', 'asc')->get();
+        
+        return response()->json($kategoris);
+    }
 }

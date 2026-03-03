@@ -18,13 +18,17 @@ class User extends Authenticatable
         'name',
         'email',
         'phone',
+      	'username',
         'gender',
         'birth_date',
         'age',
         'address',
         'city',
+      	'kecamatan',
+      	'kelurahan',
         'occupation',
         'join_date',
+      'member_type',
         'profile_photo',
         'status',
         'role',
@@ -43,12 +47,18 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'birth_date' => 'date',
+            
+            'birth_date' => 'date:Y-m-d',
             'join_date' => 'date',
             'expired_at' => 'date',
             'age' => 'integer',
             'point' => 'integer',
         ];
+    }
+  
+  	public function familyMembers()
+    {
+        return $this->hasMany(UserFamilyMember::class);
     }
 
     /**

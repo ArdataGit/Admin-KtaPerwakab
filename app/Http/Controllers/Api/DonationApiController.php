@@ -242,5 +242,32 @@ class DonationApiController extends Controller
             ]
         ]);
     }
+  
+    public function checkDailyLimit(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated',
+            ], 401);
+        }
+
+        $todayCount = Donation::query()
+            ->where('user_id', $user->id)
+            ->whereIn('status', ['PENDING', 'PAID']) // lebih aman
+            ->whereDate('created_at', now()->toDateString())
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'today_count' => $todayCount,
+                'limit'       => 2,
+                'can_donate'  => $todayCount < 2,
+            ]
+        ]);
+    }
 
 }

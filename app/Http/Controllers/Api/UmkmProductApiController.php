@@ -125,6 +125,7 @@ class UmkmProductApiController extends Controller
             'price' => 'required|numeric|min:0',
             'description' => 'nullable|string',
             'youtube_link' => 'nullable|url',
+            'category' => 'required|string|max:100',
             'photos' => 'required|array|min:1',
             'photos.*' => 'required|image|mimes:jpeg,jpg,png|max:2048',
         ]);
@@ -186,6 +187,7 @@ class UmkmProductApiController extends Controller
             'description' => 'nullable|string',
             'youtube_link' => 'nullable|url',
             'photos' => 'nullable|array',
+            'category' => 'required|string|max:100',
             'photos.*' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
         ]);
 

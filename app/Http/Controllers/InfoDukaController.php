@@ -17,11 +17,6 @@ class InfoDukaController extends Controller
         return view('pages.master.info-duka.index', compact('items'));
     }
 
-    public function create()
-    {
-        return view('pages.master.info-duka.create');
-    }
-
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -52,11 +47,6 @@ class InfoDukaController extends Controller
         return redirect()
             ->route('info-duka.index')
             ->with('success', 'Info duka berhasil ditambahkan');
-    }
-
-    public function edit(InfoDuka $infoDuka)
-    {
-        return view('pages.master.info-duka.edit', compact('infoDuka'));
     }
 
     public function update(Request $request, InfoDuka $infoDuka)
@@ -108,10 +98,8 @@ class InfoDukaController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(InfoDuka $infoDuka)
     {
-        $infoDuka = InfoDuka::findOrFail($id);
-
         try {
 
             if ($infoDuka->foto && Storage::disk('public')->exists($infoDuka->foto)) {
@@ -125,7 +113,7 @@ class InfoDukaController extends Controller
         } catch (\Throwable $e) {
 
             \Log::error('Gagal menghapus info duka', [
-                'id' => $id,
+                'id' => $infoDuka->id,
                 'error' => $e->getMessage(),
             ]);
 

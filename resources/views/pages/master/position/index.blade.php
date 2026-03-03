@@ -1,92 +1,93 @@
 @extends('layouts.app')
 
+@section('title', 'Master Posisi')
+
+@section('page-title', 'Master Posisi')
+
 @section('content')
 
-    <div class="d-flex justify-content-between my-3">
-        <h4>Master Posisi</h4>
-        <button class="btn btn-primary" data-toggle="modal" data-target="#createModal">Tambah Posisi</button>
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Master Posisi</h2>
+        <button onclick="showCreateModal()" 
+                class="px-5 py-2.5 bg-gradient-to-r from-[#3E9A3E] to-[#85C955] text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all">
+            <i class="fas fa-plus mr-2"></i>Tambah Posisi
+        </button>
     </div>
 
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th width="5%">#</th>
-                <th>Nama Posisi</th>
-                <th width="20%">Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach ($posisis as $i => $p)
-                <tr>
-                    <td>{{ $posisis->firstItem() + $i }}</td>
-                    <td>{{ $p->name }}</td>
-                    <td>
-                        <button class="btn btn-sm btn-warning" data-toggle="modal"
-                            data-target="#editModal{{ $p->id }}">Edit</button>
-                        <form action="{{ route('posisi.destroy', $p->id) }}" method="POST" style="display:inline-block">
-                            @csrf @method('DELETE')
-                            <button onclick="return confirm('Hapus data ini?')" class="btn btn-sm btn-danger">Hapus</button>
-                        </form>
-                    </td>
-                </tr>
+    <!-- Table Card -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">#</th>
+                        <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Nama Posisi</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @forelse ($posisis as $i => $p)
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 text-sm text-gray-700">{{ $posisis->firstItem() + $i }}</td>
+                            <td class="px-6 py-4 text-sm">
+                                <div class="font-medium text-gray-900">{{ $p->name }}</div>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <button onclick="showEditModal({{ $p->id }}, '{{ addslashes($p->name) }}')"
+                                            class="px-3 py-1.5 bg-yellow-500 text-white text-xs font-medium rounded-lg hover:bg-yellow-600 transition-colors">
+                                        <i class="fas fa-edit mr-1"></i>Edit
+                                    </button>
 
-                <!-- Edit Modal -->
-                <div class="modal fade" id="editModal{{ $p->id }}">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <form method="POST" action="{{ route('posisi.update', $p->id) }}">
-                                @csrf @method('PUT')
-                                <div class="modal-header">
-                                    <h5>Edit Posisi</h5>
+                                    <button onclick="confirmDelete({{ $p->id }})"
+                                            class="px-3 py-1.5 bg-red-500 text-white text-xs font-medium rounded-lg hover:bg-red-600 transition-colors">
+                                        <i class="fas fa-trash mr-1"></i>Hapus
+                                    </button>
                                 </div>
-                                <div class="modal-body">
-                                    <input type="text" class="form-control" name="name" value="{{ $p->name }}" required>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                                    <button type="submit" class="btn btn-primary">Simpan</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </tbody>
-    </table>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="3" class="px-6 py-12 text-center text-gray-500">
+                                <i class="fas fa-user-tie text-4xl mb-2 text-gray-300"></i>
+                                <p>Tidak ada data posisi</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
-    {{ $posisis->links('pagination::bootstrap-4') }}
-
-
-
-    <!-- Create Modal -->
-    <div class="modal fade" id="createModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form method="POST" action="{{ route('posisi.store') }}">
-                    @csrf
-                    <div class="modal-header">
-                        <h5>Tambah Posisi</h5>
-                    </div>
-                    <div class="modal-body">
-                        <input type="text" name="name" class="form-control" placeholder="Nama posisi" required>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-success">Tambah</button>
-                    </div>
-                </form>
-            </div>
+        <!-- Pagination -->
+        <div class="px-6 py-4 border-t border-gray-200">
+            {{ $posisis->links() }}
         </div>
     </div>
 
+    <!-- Hidden Forms for Delete -->
+    @foreach ($posisis as $p)
+        <form id="delete-form-{{ $p->id }}" 
+              action="{{ route('position.destroy', $p->id) }}" 
+              method="POST" 
+              style="display: none;">
+            @csrf
+            @method('DELETE')
+        </form>
+    @endforeach
+
+@endsection
+
+@push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Show success/error messages
         @if(session('success'))
             Swal.fire({
                 icon: 'success',
                 title: 'Berhasil!',
                 text: '{{ session("success") }}',
-                timer: 1800,
+                timer: 2000,
                 showConfirmButton: false
             });
         @endif
@@ -100,5 +101,88 @@
                 showConfirmButton: false
             });
         @endif
+
+        // Create Modal
+        function showCreateModal() {
+            Swal.fire({
+                title: 'Tambah Posisi',
+                html: `
+                    <form id="createForm" action="{{ route('position.store') }}" method="POST">
+                        @csrf
+                        <div class="text-left mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Posisi <span class="text-red-500">*</span></label>
+                            <input type="text" name="name" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+                                   placeholder="Contoh: Ketua, Sekretaris, Bendahara" required>
+                        </div>
+                    </form>
+                `,
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-save mr-2"></i>Simpan',
+                cancelButtonText: '<i class="fas fa-times mr-2"></i>Batal',
+                confirmButtonColor: '#10b981',
+                cancelButtonColor: '#6b7280',
+                width: '500px',
+                preConfirm: () => {
+                    const name = document.querySelector('input[name="name"]').value;
+                    if (!name) {
+                        Swal.showValidationMessage('Nama posisi wajib diisi');
+                        return false;
+                    }
+                    document.getElementById('createForm').submit();
+                }
+            });
+        }
+
+        // Edit Modal
+        function showEditModal(id, name) {
+            Swal.fire({
+                title: 'Edit Posisi',
+                html: `
+                    <form id="editForm" action="{{ url('position') }}/${id}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        <div class="text-left mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Posisi <span class="text-red-500">*</span></label>
+                            <input type="text" name="name" 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" 
+                                   value="${name}" required>
+                        </div>
+                    </form>
+                `,
+                showCancelButton: true,
+                confirmButtonText: '<i class="fas fa-save mr-2"></i>Update',
+                cancelButtonText: '<i class="fas fa-times mr-2"></i>Batal',
+                confirmButtonColor: '#f59e0b',
+                cancelButtonColor: '#6b7280',
+                width: '500px',
+                preConfirm: () => {
+                    const name = document.querySelector('input[name="name"]').value;
+                    if (!name) {
+                        Swal.showValidationMessage('Nama posisi wajib diisi');
+                        return false;
+                    }
+                    document.getElementById('editForm').submit();
+                }
+            });
+        }
+
+        // Delete Confirmation
+        function confirmDelete(id) {
+            Swal.fire({
+                title: 'Hapus Posisi?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: '<i class="fas fa-trash mr-2"></i>Ya, Hapus!',
+                cancelButtonText: '<i class="fas fa-times mr-2"></i>Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('delete-form-' + id).submit();
+                }
+            });
+        }
     </script>
-@endsection
+@endpush

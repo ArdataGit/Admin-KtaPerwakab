@@ -14,14 +14,14 @@ class UmkmController extends Controller
     public function index()
     {
         $umkms = Umkm::with('user')->latest()->paginate(10);
-        $users = User::whereDoesntHave('umkm')->get();
 
-        return view('pages.master.umkm.index', compact('umkms', 'users'));
+        return view('pages.master.umkm.index', compact('umkms'));
     }
 
     public function create()
     {
-        return view('admin.umkm.create');
+        $users = User::whereDoesntHave('umkm')->get();
+        return view('pages.master.umkm.create', compact('users'));
     }
 
     public function store(Request $request)
@@ -48,7 +48,8 @@ class UmkmController extends Controller
 
     public function edit(Umkm $umkm)
     {
-        return view('admin.umkm.edit', compact('umkm'));
+        $users = User::whereDoesntHave('umkm')->get();
+        return view('pages.master.umkm.edit', compact('umkm', 'users'));
     }
 
     public function update(Request $request, Umkm $umkm)
